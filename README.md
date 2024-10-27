@@ -1,6 +1,9 @@
-# soundshare-frontend
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bc300d2e-2218-445d-b82a-d25873a5e883">
+</p>
 
-- Web App Frontend for SoundShare
+# SoundShare Web App Frontend
+
 ## Built with
 - Vue 3
 - Tailwind CSS
