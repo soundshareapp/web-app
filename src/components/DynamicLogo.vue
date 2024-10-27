@@ -15,8 +15,8 @@ const props = defineProps({
 .logo {
   position: relative;
   user-select: none;
-  width: v-bind(props.size);
-  height: v-bind(props.size);
+  width: v-bind('props.size');
+  height: v-bind('props.size'); 
 }
 .note,
 .paperplane {
