@@ -1,12 +1,32 @@
 <script setup lang="ts">
 import LoginPageGlow from '@/components/LoginPageGlow.vue';
-import DynamicLogo from '../components/DynamicLogo.vue';
-
-import { ref } from 'vue';
+import DynamicLogo from '@/components/DynamicLogo.vue';
 import TypewriterText from '@/components/TypewriterText.vue';
 
+import { ref } from 'vue';
+
+const api = "http://127.0.0.1:5000/api"
+
 const showPassword = ref(false);
+
+const email = ref("");
+const password = ref("");
 const staySignedIn = ref(true);
+
+const login = async () => {
+  let response = await fetch(`${api}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: email.value,
+      password: password.value,
+      staySignedIn: staySignedIn.value,
+    })
+  })
+  console.log(await response.json());
+}
 
 </script>
 <template>
@@ -20,13 +40,13 @@ const staySignedIn = ref(true);
       </div>
     </div>
     <div class="login-container">
-      <h1 class="text-5xl mb-2 font-['ClashDisplay-Variable']">Login</h1>
+      <h1 class="text-5xl mb-2 font-['ClashDisplay']">Login</h1>
       <label>
-        <input type="text" placeholder="name@example.com">
+        <input v-model="email" type="text" placeholder="name@example.com">
         <div>Email</div>
       </label>
       <label>
-        <input :type='showPassword ? "text" : "password"' placeholder="⬤⬤⬤⬤⬤⬤⬤⬤">
+        <input v-model="password" :type='showPassword ? "text" : "password"' placeholder="⬤⬤⬤⬤⬤⬤⬤⬤">
         <div>Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">
           <font-awesome-icon :show="showPassword"
@@ -38,6 +58,7 @@ const staySignedIn = ref(true);
         <input type="checkbox" class="staySignedIn" v-model="staySignedIn">
       </label>
       <button
+        @click="login()"
         class="loginButton p-2 bg-accent-500 bg-opacity-80 rounded-md text-lg mt-2 hover:brightness-110 active:scale-95 transition-[transform,filter]">
         Login
       </button>
@@ -50,7 +71,7 @@ const staySignedIn = ref(true);
         Don't have an account? Sign Up</div>
     </div>
     <div
-      class="promo absolute hidden text-5xl leading-snug font-['ClashDisplay-Variable'] xl:flex flex-col left-36 top-1/2 -translate-y-1/2">
+      class="promo absolute hidden text-5xl leading-snug font-['ClashDisplay'] xl:flex flex-col left-36 top-1/2 -translate-y-1/2">
       <h1>A new way to discover</h1>
       <h1><TypewriterText :words="['Music', 'Artists', 'Genres', 'Albums', 'Playlists']" /> with friends.</h1>
     </div>
@@ -69,12 +90,12 @@ const staySignedIn = ref(true);
 
 .appName,
 .appName span {
-  font-family: 'ClashDisplay-Variable';
+  font-family: 'ClashDisplay';
   font-weight: 450;
 }
 
 .login-container {
-  @apply select-none p-10 absolute w-full sm:w-96 right-1/2 lg:right-48 top-1/2 flex flex-col gap-1 lg:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-stone-100 sm:dark:bg-stone-950 bg-opacity-30 border-stone-100 sm:border-2 border-opacity-10 rounded-2xl;
+  @apply select-none p-10 absolute w-full sm:w-96 right-1/2 xl:right-48 top-1/2 flex flex-col gap-1 xl:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-stone-100 sm:dark:bg-stone-950 bg-opacity-30 border-stone-100 sm:border-2 border-opacity-10 rounded-2xl;
 }
 
 input[type="text"],
