@@ -4,6 +4,7 @@ import DynamicLogo from '@/components/DynamicLogo.vue';
 import TypewriterText from '@/components/TypewriterText.vue';
 
 import { ref } from 'vue';
+import router from '@/router';
 
 const api = "http://127.0.0.1:5000/api"
 
@@ -25,7 +26,11 @@ const login = async () => {
       staySignedIn: staySignedIn.value,
     })
   })
-  console.log(await response.json());
+  let data = await response.json();
+
+  if (data.authenticated) {
+    router.push("/");
+  }
 }
 
 </script>
@@ -95,7 +100,7 @@ const login = async () => {
 }
 
 .login-container {
-  @apply select-none p-10 absolute w-full sm:w-96 right-1/2 xl:right-48 top-1/2 flex flex-col gap-1 xl:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-stone-100 sm:dark:bg-stone-950 bg-opacity-30 border-stone-100 sm:border-2 border-opacity-10 rounded-2xl;
+  @apply select-none p-10 absolute w-full sm:w-96 right-1/2 xl:right-48 top-1/2 flex flex-col gap-1 xl:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-stone-100 sm:dark:bg-stone-950 bg-opacity-30 sm:dark:bg-opacity-50 border-stone-100 sm:border-2 border-opacity-10 rounded-2xl;
 }
 
 input[type="text"],

@@ -14,8 +14,6 @@ const shuffle = async () => {
 
   currentText.value = "";
   let currentWord = props.words[i];
-
-  console.log(currentWord);
   
   j=0;
   await addChar(currentWord);
