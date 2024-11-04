@@ -6,17 +6,21 @@ import TypewriterText from '@/components/TypewriterText.vue';
 import { ref } from 'vue';
 import router from '@/router';
 
-const api = "http://127.0.0.1:5000/api"
+const authApi = "http://127.0.0.1:5000/auth"
 
 const showPassword = ref(false);
 
+const loading = ref(false);
 const email = ref("");
 const password = ref("");
 const staySignedIn = ref(true);
 
 const login = async () => {
-  let response = await fetch(`${api}/login`, {
+  if (loading.value) return;
+  loading.value = true;
+  let response = await fetch(`${authApi}/login`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -27,7 +31,8 @@ const login = async () => {
     })
   })
   let data = await response.json();
-
+  
+  loading.value = false;
   if (data.authenticated) {
     router.push("/");
   }
@@ -55,7 +60,7 @@ const login = async () => {
         <div>Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">
           <font-awesome-icon :show="showPassword"
-            :icon="showPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash'" />
+            :icon="showPassword ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'" />
         </button>
       </label>
       <label class="text-base mt-1 h-6 flex items-center gap-1.5 w-fit">
@@ -64,8 +69,11 @@ const login = async () => {
       </label>
       <button
         @click="login()"
-        class="loginButton p-2 bg-accent-500 bg-opacity-80 rounded-md text-lg mt-2 hover:brightness-110 active:scale-95 transition-[transform,filter]">
+        class="loginButton relative p-2 bg-accent-500 bg-opacity-80 rounded-md text-lg mt-2 hover:brightness-110 active:scale-95 transition-[transform,filter]">
         Login
+        <div class="loadingSpinner" :class="{'opacity-0': !loading}">
+          <font-awesome-icon icon="fa-solid fa-circle-notch" />
+        </div>
       </button>
       <div class="divider h-[2px] w-full bg-stone-500 bg-opacity-20 my-3"></div>
       <div
@@ -144,7 +152,7 @@ label input:not(:placeholder-shown)+div {
 }
 
 .showpassword {
-  @apply absolute right-3 top-2 w-6 h-6;
+  @apply absolute right-3 top-3 w-6 h-6 flex items-center justify-center;
 }
 
 .showpassword svg {
@@ -176,5 +184,21 @@ input[type="checkbox"]:checked {
 input[type="checkbox"]:checked::before {
   @apply scale-100;
 
+}
+@keyframes spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingSpinner {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  animation: spinner 0.75s linear infinite;
+  transition: opacity 200ms;
 }
 </style>
