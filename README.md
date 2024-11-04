@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bc300d2e-2218-445d-b82a-d25873a5e883">
+  <img src="https://github.com/user-attachments/assets/14c05725-7379-440b-b0d1-d01d01dbb599" style="width:100%;">
 </p>
 
 # SoundShare Web App Frontend
