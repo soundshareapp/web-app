@@ -23,25 +23,25 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from) => {
-  console.log("router check");
+router.beforeEach(async (to, from) => {
 
-  fetch(`${authApi}/status`, {
+  let response = await fetch(`${authApi}/status`, {
     method: 'GET',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-  }).then(async response => {
-    let resp = await response.json();
-    if (to.meta.authRequired && !resp.authenticated) {
-      return '/login';
-    } else if (!to.meta.authRequired && resp.authenticated) {
-      return '/';
-    } else {
-      return true;
-    }
   })
+  let resp = await response.json();
+  if (to.meta.authRequired && !resp.authenticated) {
+    console.log("auth required, not authenticated")
+    return '/login';
+  } else if (!to.meta.authRequired && resp.authenticated) {
+    console.log("auth not required, authenticated")
+    return '/';
+  } else {
+    return true;
+  }
 
 })
 
