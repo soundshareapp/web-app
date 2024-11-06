@@ -2,6 +2,7 @@
 import LoginPageGlow from '@/components/LoginPageGlow.vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import TypewriterText from '@/components/TypewriterText.vue'
+import PrimaryButton from '@/components/PrimaryButton.vue'
 
 import { ref } from 'vue'
 import router from '@/router'
@@ -88,16 +89,12 @@ const login = async () => {
       >
         Forgot Password
       </div>
-      <button
-        type="submit"
-        @click="login()"
-        class="loginButton relative p-2 bg-accent-500 bg-opacity-80 rounded-md text-lg mt-2 hover:brightness-110 active:scale-95 transition-[transform,filter]"
-      >
+      <PrimaryButton @click="login()">
         Login
         <div class="loadingSpinner" :class="{ 'opacity-0': !loading }">
           <font-awesome-icon icon="fa-solid fa-circle-notch" />
         </div>
-      </button>
+      </PrimaryButton>
       <div class="divider h-[2px] w-full bg-stone-500 bg-opacity-20 my-3"></div>
       <div
         class="hover:text-accent-500 hover:underline cursor-pointer transition-[transform,color] text-center text-lg active:scale-95"
@@ -142,13 +139,13 @@ const login = async () => {
 }
 
 .errortext {
-  @apply block bg-red-500 bg-opacity-15 absolute top-0 left-0 w-full text-center text-red-600 dark:text-red-400 overflow-hidden box-border h-0 p-0;
+  @apply block bg-red-500 rounded-md sm:rounded-none bg-opacity-15 sm:absolute w-full top-0 left-0 mb-2 sm:mb-0 text-center text-red-600 dark:text-red-400 overflow-hidden box-border h-0 p-0;
   transition:
     height 200ms,
     padding 200ms;
 }
 .errortext[iserror='true'] {
-  @apply h-10 p-2;
+  @apply h-auto sm:h-10 p-2;
 }
 
 a.errorcontact {
