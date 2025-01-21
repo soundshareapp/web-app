@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoginPageGlow from '@/components/LoginPageGlow.vue'
+import PageGlow from '@/components/PageGlow.vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import TypewriterText from '@/components/TypewriterText.vue'
 
@@ -13,9 +13,11 @@ const showPassword = ref(false)
 const loading = ref(false)
 const email = ref('')
 const password = ref('')
+const confPassword = ref('')
 const staySignedIn = ref(true)
 const isError = ref(false)
 const errorText = ref('')
+const loginMode = ref(0)
 
 const login = async () => {
   if (loading.value) return
@@ -46,6 +48,43 @@ const login = async () => {
     }, 5000)
   }
 }
+
+const signup = async () => {
+  if (password.value != confPassword.value) {
+    isError.value = true
+    errorText.value = 'Passwords do not match.'
+    setTimeout(() => {
+      isError.value = false
+    }, 5000)
+    return
+  }
+
+  if (loading.value) return
+  loading.value = true
+  const response = await fetch(`${authApi}/signup`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: email.value,
+      password: password.value,
+    }),
+  })
+  const data = await response.json()
+
+  loading.value = false
+  if (data.authenticated) {
+    router.push('/')
+  } else {
+    isError.value = true
+    errorText.value = data.message
+    setTimeout(() => {
+      isError.value = false
+    }, 5000)
+  }
+}
 </script>
 <template>
   <div class="login-page">
@@ -59,7 +98,9 @@ const login = async () => {
     </div>
     <div :class="'login-container' + (isError ? ' pt-20 p-10' : ' p-10')">
       <div class="errortext" :iserror="isError" v-html="errorText"></div>
-      <h1 class="text-5xl mb-2 font-['ClashDisplay']">Login</h1>
+      <h1 class="text-5xl mb-2 font-['ClashDisplay']">
+        {{ loginMode == 0 ? 'Login' : 'Sign Up' }}
+      </h1>
       <label>
         <input v-model="email" type="text" placeholder="name@example.com" />
         <div>Email</div>
@@ -79,30 +120,55 @@ const login = async () => {
           />
         </button>
       </label>
+      <label v-if="loginMode == 1" class="mb-2">
+        <input
+          v-model="confPassword"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="●●●●●●●●"
+          @keyup.enter="login()"
+        />
+        <div>Confirm Password</div>
+        <button class="showpassword" @click="showPassword = !showPassword">
+          <font-awesome-icon
+            :show="showPassword"
+            :icon="showPassword ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+          />
+        </button>
+      </label>
       <!--label class="text-base mt-1 h-6 flex items-center gap-1.5 w-fit">
         Stay signed in
         <input type="checkbox" class="staySignedIn" v-model="staySignedIn" />
       </label -->
       <div
+        v-if="loginMode == 0"
         class="hover:text-accent-500 hover:underline cursor-pointer transition-[transform,color] active:scale-95 w-fit"
       >
         Forgot Password
       </div>
       <button
         type="submit"
-        @click="login()"
+        @click="loginMode == 0 ? login() : signup()"
         class="loginButton relative p-2 bg-accent-500 bg-opacity-80 rounded-md text-lg mt-2 hover:brightness-110 active:scale-95 transition-[transform,filter]"
       >
-        Login
+        {{ loginMode == 0 ? 'Login' : 'Sign Up' }}
         <div class="loadingSpinner" :class="{ 'opacity-0': !loading }">
           <font-awesome-icon icon="fa-solid fa-circle-notch" />
         </div>
       </button>
       <div class="divider h-[2px] w-full bg-stone-500 bg-opacity-20 my-3"></div>
       <div
+        v-if="loginMode == 0"
         class="hover:text-accent-500 hover:underline cursor-pointer transition-[transform,color] text-center text-lg active:scale-95"
+        @click="loginMode = 1"
       >
         Don't have an account? Sign Up
+      </div>
+      <div
+        v-else
+        class="hover:text-accent-500 hover:underline cursor-pointer transition-[transform,color] text-center text-lg active:scale-95"
+        @click="loginMode = 0"
+      >
+        Already have an account? Login
       </div>
     </div>
     <div
@@ -117,7 +183,7 @@ const login = async () => {
         with friends.
       </h1>
     </div>
-    <LoginPageGlow />
+    <PageGlow />
   </div>
 </template>
 
