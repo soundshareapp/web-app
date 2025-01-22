@@ -2,8 +2,10 @@
 import router from '@/router'
 import PageGlow from '@/components/PageGlow.vue'
 import FriendList from '@/components/FriendList.vue'
+import { onMounted } from 'vue'
 
 const authApi = 'http://127.0.0.1:5000/auth'
+const onboardingApi = 'http://127.0.0.1:5000/ob'
 
 const logout = async () => {
   const response = await fetch(`${authApi}/logout`, {
@@ -19,6 +21,25 @@ const logout = async () => {
     router.push('/login')
   }
 }
+
+/*const checkOnboarding = async () => {
+  const response = await fetch(`${onboardingApi}/status`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  const data = await response.json()
+  console.log(data)
+  if (data.status !== 'Complete') {
+    router.push('/onboarding')
+  }
+}*/
+
+onMounted(() => {
+  /*checkOnboarding()*/
+})
 </script>
 
 <template>

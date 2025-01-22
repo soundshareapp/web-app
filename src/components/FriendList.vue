@@ -4,21 +4,21 @@ const selected = ref('fb40dcf9-7469-444e-8f39-b5bfceaedfe9')
 
 const timeSince = (timeStamp: Date) => {
   const now = new Date(),
-    secondsPast = (now.getTime() - timeStamp) / 1000
+    secondsPast = (now.getTime() - timeStamp.getTime()) / 1000
   if (secondsPast < 60) {
-    return parseInt(secondsPast) + 's'
+    return Math.floor(secondsPast) + 's'
   }
   if (secondsPast < 3600) {
-    return parseInt(secondsPast / 60) + 'm'
+    return Math.floor(secondsPast / 60) + 'm'
   }
   if (secondsPast <= 86400) {
-    return parseInt(secondsPast / 3600) + 'h'
+    return Math.floor(secondsPast / 3600) + 'h'
   }
   if (secondsPast > 86400) {
     const day = timeStamp.getDate()
     const month = timeStamp
       .toDateString()
-      .match(/ [a-zA-Z]*/)[0]
+      .match(/ [a-zA-Z]*/)?.[0]
       .replace(' ', '')
     const year =
       timeStamp.getFullYear() == now.getFullYear()
@@ -30,21 +30,21 @@ const timeSince = (timeStamp: Date) => {
 
 const friends = ref([
   {
-    timestamp: new Date('2025-01-20T20:09:42.000Z'),
+    timestamp: new Date('2025-01-22T20:09:42.000+05:30'),
     id: 'fb40dcf9-7469-444e-8f39-b5bfceaedfe9',
     name: 'Bob the Blob',
     avatar: 'https://picsum.photos/200',
     unreadCount: 0,
   },
   {
-    timestamp: new Date('2025-01-18T20:10:42.000Z'),
+    timestamp: new Date('2025-01-18T20:10:42.000+05:30'),
     id: 'e8aaf390-de16-4eea-80d5-6fec3286be34',
     name: 'Alice the Cat',
     avatar: 'https://picsum.photos/200',
     unreadCount: 1,
   },
   {
-    timestamp: new Date('2025-01-19T22:11:42.000Z'),
+    timestamp: new Date('2025-01-19T22:11:42.000+05:30'),
     id: '52be1281-1d0c-46ca-a254-2e2e3396dc9d',
     name: 'John the Dog',
     avatar: 'https://picsum.photos/200',
