@@ -22,7 +22,7 @@ const logout = async () => {
   }
 }
 
-/*const checkOnboarding = async () => {
+const checkOnboarding = async () => {
   const response = await fetch(`${onboardingApi}/status`, {
     method: 'GET',
     credentials: 'include',
@@ -35,10 +35,18 @@ const logout = async () => {
   if (data.status !== 'Complete') {
     router.push('/onboarding')
   }
-}*/
+}
+
+const deleteAccount = async () => {
+  await fetch(`http://127.0.0.1:5000/auth/delete`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+  router.push('/login')
+}
 
 onMounted(() => {
-  /*checkOnboarding()*/
+  checkOnboarding()
 })
 </script>
 
@@ -57,6 +65,9 @@ onMounted(() => {
       </div>
     </div>
     <button @click="logout">Logout</button>
+    <button @click.alt="deleteAccount" class="ml-2 text-red-500">
+      Delete Account (⌥ click)
+    </button>
     <PageGlow />
   </div>
 </template>
