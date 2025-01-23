@@ -255,7 +255,7 @@ label div {
 }
 
 label input:focus + div {
-  @apply text-accent-500;
+  @apply text-accent-600 dark:text-accent-500;
   transform: translate(-0.8rem, -2rem) scale(80%);
 }
 
