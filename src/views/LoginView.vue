@@ -110,7 +110,6 @@ const signup = async () => {
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
           placeholder="●●●●●●●●"
-          @keyup.enter="login()"
         />
         <div>Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">
@@ -125,7 +124,7 @@ const signup = async () => {
           v-model="confPassword"
           :type="showPassword ? 'text' : 'password'"
           placeholder="●●●●●●●●"
-          @keyup.enter="login()"
+          @keyup.enter="signup()"
         />
         <div>Confirm Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">
@@ -203,7 +202,7 @@ const signup = async () => {
 }
 
 .login-container {
-  @apply overflow-hidden select-none absolute w-full sm:w-96 right-1/2 xl:right-48 top-1/2 flex flex-col gap-1 xl:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-white sm:dark:bg-stone-950 bg-opacity-30 sm:bg-opacity-50 border-stone-600 dark:border-stone-100 sm:border-2 border-opacity-10 dark:border-opacity-10 rounded-2xl;
+  @apply overflow-hidden select-none absolute w-full sm:w-96 right-1/2 xl:right-48 top-1/2 flex flex-col gap-1 xl:translate-x-0 translate-x-1/2 -translate-y-1/2 sm:bg-white sm:dark:bg-stone-950 bg-opacity-30 sm:bg-opacity-50 sm:dark:bg-opacity-50 border-stone-600 dark:border-stone-100 sm:border-2 border-opacity-10 dark:border-opacity-10 rounded-2xl;
   transition: padding 200ms;
 }
 
