@@ -110,6 +110,7 @@ const signup = async () => {
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
           placeholder="●●●●●●●●"
+          @keyup.enter="loginMode == 0 ? login(): void(0)"
         />
         <div>Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">
@@ -223,6 +224,7 @@ a.errorcontact {
 input[type='text'],
 input[type='password'] {
   @apply text-lg box-border w-full py-2 px-3 bg-stone-100 dark:bg-stone-950 bg-opacity-30 border-stone-600 dark:border-stone-100 border-2 border-opacity-10 dark:border-opacity-10 rounded-md transition-colors;
+  transition: filter 200ms;
 }
 
 input::placeholder {
