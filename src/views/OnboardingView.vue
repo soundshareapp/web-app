@@ -1,15 +1,48 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import PageGlow from '@/components/PageGlow.vue'
+import { countryCodeToEmoji } from '@/utils/countryCodeEmoji'
 
 const router = useRouter()
 const api = 'http://127.0.0.1:5000'
 const currentStep = ref(1)
 const name = ref('')
 const username = ref('')
+
 const usernameRegex = /^[a-z][a-z0-9._-]{4,19}$/
+const emailCensorRegex = /(^..|@[^@][^@]+$)|./g
+
+interface SpotifyUserData {
+  country: string
+  display_name: string
+  email: string
+  explicit_content: {
+    filter_enabled: boolean
+    filter_locked: boolean
+  }
+  external_urls: {
+    spotify: string
+  }
+  followers: {
+    href: string | null
+    total: number
+  }
+  href: string
+  id: string
+  images: {
+    height: number
+    url: string
+    width: number
+  }[]
+  product: string
+  type: string
+  uri: string
+}
+
+const spotifyConnected = ref(false)
+const spotifyUserData = ref<SpotifyUserData | null>(null)
 
 const unError = ref(false)
 const inputShake = ref([false, false])
@@ -70,9 +103,25 @@ const spotifyLogin = async () => {
   const response = await fetch(`${api}/spotify/login`, {
     credentials: 'include',
   })
-  const data= await response.json()
+  const data = await response.json()
   window.location.href = data.url
 }
+
+const get_spotify_data = async () => {
+  const response = await fetch(`${api}/spotify/user-info`, {
+    credentials: 'include',
+  })
+  spotifyUserData.value = await response.json()
+}
+
+onMounted(() => {
+  spotifyConnected.value =
+    Boolean(router.currentRoute.value.query.spotify_connected) || false
+  if (spotifyConnected.value) {
+    currentStep.value = 2
+    get_spotify_data()
+  }
+})
 </script>
 
 <template>
@@ -129,7 +178,43 @@ const spotifyLogin = async () => {
             />
             <div class="translate-x-[3%] font-bold">CONNECT WITH SPOTIFY</div>
           </button>
-          <div>Not connected</div>
+          <div v-if="!spotifyConnected">Not connected</div>
+          <p v-if="spotifyConnected" class="font-medium">Your profile</p>
+          <div
+            v-if="spotifyConnected"
+            class="spotifyUserCard"
+            :style="{
+              'background-image': `url(${spotifyUserData?.images?.[0]?.url}`,
+            }"
+          >
+            <img
+              :src="spotifyUserData?.images?.[0]?.url"
+              class="w-16 h-16 rounded-md"
+            />
+            <div class="flex flex-col">
+              <div class="text-xl font-medium">
+                {{ spotifyUserData?.display_name }}
+                <p class="inline text-lg">
+                  {{ countryCodeToEmoji(spotifyUserData?.country || '') }}
+                </p>
+                <font-awesome-icon
+                  icon="dollar-sign"
+                  title="Premium"
+                  class="bg-gradient-to-tr from-[#1ed760d0] to-[#1ed780d0] ml-1 p-1 w-3 h-3 rounded-full"
+                />
+              </div>
+              <div class="opacity-80 text-sm">
+                Followers: {{ spotifyUserData?.followers.total }}
+              </div>
+              <div class="opacity-70 text-xs">{{ spotifyUserData?.email.replace(emailCensorRegex, (x,y) => y || '*') }}</div>
+            </div>
+            <div
+              class="cardBlur"
+            ></div>
+            <a class="userlink" :href="spotifyUserData?.external_urls.spotify" target="_blank">
+              <font-awesome-icon icon="arrow-up-right-from-square" />
+            </a >
+          </div>
           <div class="flex-grow" />
           <button class="prevbutton" @click="currentStep = 1">
             <font-awesome-icon icon="arrow-left" />
@@ -137,7 +222,6 @@ const spotifyLogin = async () => {
         </div>
       </div>
     </div>
-
     <button
       class="bg-stone-900 dark:bg-stone-100 bg-opacity-10 dark:bg-opacity-10 py-2 px-4 my-4 mx-auto rounded-md absolute bottom-0"
       @click="logout"
@@ -196,6 +280,21 @@ label input.err + div {
   @apply bg-gradient-to-r from-[#1ed760] to-accent-500 bg-no-repeat hover:bg-[100%] active:opacity-90 transition-opacity;
   transition: background-position 0.2s ease-in-out;
   background-size: 400% 100%;
+}
+
+.spotifyUserCard {
+  @apply flex p-2 rounded-xl relative backdrop-blur-xl gap-2 select-none max-h-20 text-white;
+  background-size: 100% 100%;
+}
+
+.cardBlur {
+  @apply absolute -z-10 top-0 left-0 w-full h-full rounded-xl bg-stone-900 bg-opacity-15 backdrop-blur-xl;
+}
+
+.userlink {
+  @apply absolute top-0 right-0 p-2 h-8 w-8 cursor-pointer flex bg-white bg-opacity-5 hover:bg-opacity-10 active:bg-opacity-15 transition-colors text-white rounded-tr-xl rounded-bl-lg;}
+.userlink svg {
+  @apply w-full h-full;
 }
 
 @keyframes inputShake {
