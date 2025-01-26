@@ -5,11 +5,11 @@ import DynamicLogo from '@/components/DynamicLogo.vue'
 import PageGlow from '@/components/PageGlow.vue'
 
 const router = useRouter()
-const api = 'http://127.0.0.1:5000/'
+const api = 'http://127.0.0.1:5000'
 const currentStep = ref(1)
 const name = ref('')
 const username = ref('')
-const usernameRegex = /^[a-z][a-z0-9._-]{4,19}$/;
+const usernameRegex = /^[a-z][a-z0-9._-]{4,19}$/
 
 const unError = ref(false)
 const inputShake = ref([false, false])
@@ -46,12 +46,13 @@ const logout = async () => {
 }
 
 const nextStep = () => {
-  if (username.value != '' && name.value != '' && !unError.value) currentStep.value = 2
+  if (username.value != '' && name.value != '' && !unError.value)
+    currentStep.value = 2
   else {
     inputShake.value[0] = !usernameRegex.test(username.value)
     inputShake.value[1] = name.value == ''
-    setTimeout(() => inputShake.value[0] = false, 350)
-    setTimeout(() => inputShake.value[1] = false, 350)
+    setTimeout(() => (inputShake.value[0] = false), 350)
+    setTimeout(() => (inputShake.value[1] = false), 350)
   }
 }
 
@@ -60,10 +61,18 @@ const testUsername = async () => {
   unError.value = !usernameRegex.test(username.value)
   if (oldValue != unError.value) {
     inputShake.value[0] = !usernameRegex.test(username.value)
-    setTimeout(() => inputShake.value[0] = false, 350)
+    setTimeout(() => (inputShake.value[0] = false), 350)
   }
 }
 
+const spotifyLogin = async () => {
+  console.log('spotifylogin')
+  const response = await fetch(`${api}/spotify/login`, {
+    credentials: 'include',
+  })
+  const data= await response.json()
+  window.location.href = data.url
+}
 </script>
 
 <template>
@@ -75,21 +84,32 @@ const testUsername = async () => {
         Sound<span class="text-accent-500">Share</span>
       </div>
     </div>
-    <div
-      class="onboarding-container">
+    <div class="onboarding-container">
       <div :class="`steps-animation ${currentStep === 2 ? ' step2' : ''}`">
         <div class="onboarding-step">
           <h1 class="text-2xl font-medium">Let's start with the basics</h1>
           <label>
-            <input v-model="username" type="text" placeholder="curiouspineapple" @input="testUsername"
-              :class="(unError ? 'err ' : '') + (inputShake[0] ? 'shake' : '')" />
+            <input
+              v-model="username"
+              type="text"
+              placeholder="curiouspineapple"
+              @input="testUsername"
+              :class="(unError ? 'err ' : '') + (inputShake[0] ? 'shake' : '')"
+            />
             <div>Pick a username</div>
             <p class="text-sm">
-              5-20 characters, can consist of a-z, 0-9, period, hyphen and underscore, must begin with alphabet.
+              5-20 characters, can consist of a-z, 0-9, period, hyphen and
+              underscore, must begin with alphabet.
             </p>
           </label>
           <label>
-            <input v-model="name" type="text" placeholder="John Doe" :class="inputShake[1] ? 'shake' : ''" />
+            <input
+              v-model="name"
+              type="text"
+              placeholder="John Doe"
+              :class="inputShake[1] ? 'shake' : ''"
+              @keyup.enter="nextStep()"
+            />
             <div>Choose your display name</div>
             <p class="text-sm">Can be your real name or nickname.</p>
           </label>
@@ -99,8 +119,14 @@ const testUsername = async () => {
         </div>
         <div class="onboarding-step">
           <h1 class="text-2xl font-medium">Link your streaming service</h1>
-          <button class="linkbutton transition-colors p-3 my-2 text-white text-base rounded-xl relative">
-            <img class="w-7 h-7 left-5 top-2.5 absolute" src="../assets/spotify.svg" />
+          <button
+            class="linkbutton transition-colors p-3 my-2 text-white text-base rounded-xl relative"
+            @click="spotifyLogin"
+          >
+            <img
+              class="w-7 h-7 left-5 top-2.5 absolute"
+              src="../assets/spotify.svg"
+            />
             <div class="translate-x-[3%] font-bold">CONNECT WITH SPOTIFY</div>
           </button>
           <div>Not connected</div>
@@ -114,7 +140,8 @@ const testUsername = async () => {
 
     <button
       class="bg-stone-900 dark:bg-stone-100 bg-opacity-10 dark:bg-opacity-10 py-2 px-4 my-4 mx-auto rounded-md absolute bottom-0"
-      @click="logout">
+      @click="logout"
+    >
       Logout (Complete Later)
     </button>
     <PageGlow />
@@ -125,7 +152,6 @@ const testUsername = async () => {
 .onboarding-container {
   @apply overflow-hidden w-full sm:w-[24rem] p-8 gap-4 flex flex-col sm:bg-white sm:dark:bg-stone-900 sm:bg-opacity-50 sm:dark:bg-opacity-50 rounded-2xl;
 }
-
 
 .steps-animation {
   width: calc(200vw - 4rem);
@@ -149,7 +175,7 @@ input.shake {
   animation: inputShake ease-out 0.35s;
 }
 
-label input.err+div {
+label input.err + div {
   @apply text-red-600 dark:text-red-500;
 }
 
@@ -159,7 +185,7 @@ label input.err+div {
 }
 
 .nextbutton {
-  @apply bg-accent-500 bg-opacity-80 hover:bg-opacity-90 transition-colors;
+  @apply bg-accent-500 text-white bg-opacity-80 hover:bg-opacity-90 transition-colors;
 }
 
 .prevbutton {
@@ -183,7 +209,7 @@ label input.err+div {
 
   50% {
     transform: translateX(-0.3rem);
-    @apply brightness-90 dark:brightness-150
+    @apply brightness-90 dark:brightness-150;
   }
 
   75% {
