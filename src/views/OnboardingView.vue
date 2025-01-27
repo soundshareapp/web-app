@@ -49,28 +49,20 @@ const unError = ref(false)
 const inputShake = ref([false, false])
 
 const completeOnboarding = async () => {
-  const response = await fetch(`${api}/ob/complete`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      name: 'Test',
-      avatar: 'https://avatars.githubusercontent.com/u/10199165?v=4',
-    }),
-  })
-  const data = await response.json()
-  router.push('/home')
+  if (spotifyUserData.value?.email) {
+    const response = await fetch(`${api}/ob/complete`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    const data = await response.json()
+    if (data.status == 'Complete') router.push('/home')
+  }
 }
 
 const logout = async () => {
   const response = await fetch(`${api}/auth/logout`, {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
   })
   const data = await response.json()
 
@@ -186,7 +178,7 @@ onMounted(() => {
             <p class="text-sm">Can be your real name or nickname.</p>
           </label>
           <button class="nextbutton self-end" @click="nextStep()">
-            <font-awesome-icon icon="arrow-right" />
+            <font-awesome-icon icon="chevron-right" />
           </button>
         </div>
         <div class="onboarding-step">
@@ -235,9 +227,15 @@ onMounted(() => {
           </div>
           <div v-else>Not connected</div>
           <div class="flex-grow" />
-          <button class="prevbutton" @click="currentStep = 1">
-            <font-awesome-icon icon="arrow-left" />
-          </button>
+          <div class="buttons flex justify-between">
+            <button class="prevbutton" @click="currentStep = 1">
+              <font-awesome-icon icon="chevron-left" />
+            </button>
+            <button class="nextbutton complete" @click="completeOnboarding">
+              <p class="text-lg mr-2">Let's Go</p>
+              <font-awesome-icon icon="chevron-right" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -288,6 +286,10 @@ label input.err+div {
 
 .nextbutton {
   @apply bg-accent-500 text-white bg-opacity-80 hover:bg-opacity-90 transition-colors;
+}
+
+.nextbutton.complete {
+  @apply w-32 flex items-center justify-center;
 }
 
 .prevbutton {
