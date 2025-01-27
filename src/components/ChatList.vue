@@ -54,17 +54,17 @@ const friends = ref([
 </script>
 
 <template>
-  <div id="friendlist" class="flex flex-col gap-2">
+  <div id="friendlist" class="flex flex-col gap-2 flex-1">
     <div v-for="friend in friends" :key="friend.id" class="flex flex-col gap-4">
       <div
-        :class="`friendbutton ${selected == friend.id ? ' bg-stone-900 bg-opacity-75' : ''}`"
+        :class="`friendbutton ${selected == friend.id ? ' bg-stone-200 dark:bg-stone-800 bg-opacity-30 dark:bg-opacity-30' : ''}`"
         @click="selected = friend.id"
       >
         <img :src="friend.avatar" class="w-12 h-12 rounded-full" />
         <div class="flex flex-col w-full">
           <div class="text-lg font-bold">{{ friend.name }}</div>
           <div
-            :class="`text-sm ${friend.unreadCount > 0 ? 'text-white' : 'text-stone-500'}`"
+            :class="`text-sm ${friend.unreadCount > 0 ? 'dark:text-white' : 'text-stone-500'}`"
           >
             Sent you a song
           </div>
@@ -87,6 +87,6 @@ const friends = ref([
 
 <style>
 .friendbutton {
-  @apply cursor-pointer flex gap-4 items-center p-2 rounded-lg transition-colors hover:bg-stone-900 hover:bg-opacity-50 active:bg-stone-900 active:bg-opacity-90;
+  @apply cursor-pointer flex gap-4 items-center p-2 rounded-lg transition-colors hover:bg-stone-200 dark:hover:bg-stone-800 hover:bg-opacity-75 dark:hover:bg-opacity-75 active:bg-stone-200 dark:active:bg-stone-800 active:bg-opacity-30 dark:active:bg-opacity-30;
 }
 </style>
