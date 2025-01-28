@@ -2,8 +2,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AppView from '@/views/AppView.vue'
 import LoginView from '@/views/LoginView.vue'
 import OnboardingView from '@/views/OnboardingView.vue'
+import { getApiUrl } from '@/utils/apiUrl'
 
-const authApi = 'http://127.0.0.1:5000/auth'
+const api = getApiUrl()
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -36,7 +37,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async to => {
-  const response = await fetch(`${authApi}/status`, {
+  const response = await fetch(`${api}/auth/status`, {
     method: 'GET',
     credentials: 'include',
     headers: {

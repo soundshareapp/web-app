@@ -2,11 +2,11 @@
 import PageGlow from '@/components/PageGlow.vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import TypewriterText from '@/components/TypewriterText.vue'
-
 import { ref } from 'vue'
 import router from '@/router'
+import { getApiUrl } from '@/utils/apiUrl'
 
-const authApi = 'http://127.0.0.1:5000/auth'
+const api = getApiUrl()
 
 const showPassword = ref(false)
 
@@ -23,7 +23,7 @@ const login = async () => {
   if (loading.value) return
   loading.value = true
   isError.value = false
-  const response = await fetch(`${authApi}/login`, {
+  const response = await fetch(`${api}/auth/login`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -61,7 +61,7 @@ const signup = async () => {
 
   if (loading.value) return
   loading.value = true
-  const response = await fetch(`${authApi}/signup`, {
+  const response = await fetch(`${api}/auth/signup`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -110,7 +110,7 @@ const signup = async () => {
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
           placeholder="●●●●●●●●"
-          @keyup.enter="loginMode == 0 ? login(): void(0)"
+          @keyup.enter="loginMode == 0 ? login() : void 0"
         />
         <div>Password</div>
         <button class="showpassword" @click="showPassword = !showPassword">

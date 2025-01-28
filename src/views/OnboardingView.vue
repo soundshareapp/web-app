@@ -4,9 +4,10 @@ import { onMounted, ref } from 'vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import PageGlow from '@/components/PageGlow.vue'
 import { countryCodeToEmoji } from '@/utils/countryCodeEmoji'
+import { getApiUrl } from '@/utils/apiUrl'
 
 const router = useRouter()
-const api = 'http://127.0.0.1:5000'
+const api = getApiUrl()
 const currentStep = ref(1)
 const name = ref('')
 const username = ref('')

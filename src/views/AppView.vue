@@ -3,15 +3,15 @@ import router from '@/router'
 import PageGlow from '@/components/PageGlow.vue'
 import ChatList from '@/components/ChatList.vue'
 import { onMounted, ref } from 'vue'
+import { getApiUrl } from '@/utils/apiUrl'
 
-const authApi = 'http://127.0.0.1:5000/auth'
-const onboardingApi = 'http://127.0.0.1:5000/ob'
+const api = getApiUrl()
 
 const showFriendRequests = ref(false)
 const friendRequests = ref([])
 
 const logout = async () => {
-  const response = await fetch(`${authApi}/logout`, {
+  const response = await fetch(`${api}/auth/logout`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -26,7 +26,7 @@ const logout = async () => {
 }
 
 const checkOnboarding = async () => {
-  const response = await fetch(`${onboardingApi}/status`, {
+  const response = await fetch(`${api}/ob/status`, {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -41,7 +41,7 @@ const checkOnboarding = async () => {
 }
 
 const deleteAccount = async () => {
-  await fetch(`http://127.0.0.1:5000/auth/delete`, {
+  await fetch(`${api}/auth/delete`, {
     method: 'POST',
     credentials: 'include',
   })
@@ -55,12 +55,17 @@ onMounted(() => {
 
 <template>
   <div class="app-container p-8 h-svh">
-    <div class="pane-container flex w-full gap-4 h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 rounded-2xl overflow-hidden">
+    <div
+      class="pane-container flex w-full gap-4 h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 rounded-2xl overflow-hidden"
+    >
       <div class="pane friends min-w-80">
         <h1 class="text-3xl font-['ClashDisplay'] mb-4">Friends</h1>
         <ChatList />
         <div class="friend-requests" :expand="showFriendRequests">
-          <button class="toggleBtn" @click="showFriendRequests = !showFriendRequests">
+          <button
+            class="toggleBtn"
+            @click="showFriendRequests = !showFriendRequests"
+          >
             <div>Friend Requests</div>
             <font-awesome-icon icon="chevron-up" />
           </button>
@@ -68,8 +73,14 @@ onMounted(() => {
             <div v-if="friendRequests.length == 0">No pending requests.</div>
           </div>
           <div class="bottom p-4 relative">
-            <input type="text" placeholder="Enter username" class="username-input">
-            <button class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-4 top-4">
+            <input
+              type="text"
+              placeholder="Enter username"
+              class="username-input"
+            />
+            <button
+              class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-4 top-4"
+            >
               <font-awesome-icon icon="fa-paper-plane" />
             </button>
           </div>
@@ -99,23 +110,27 @@ onMounted(() => {
 }
 .friend-requests {
   @apply overflow-hidden h-12 rounded-lg bg-accent-200 bg-opacity-10 box-content flex flex-col;
-  transition: height 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  transition:
+    height 0.25s ease-in-out,
+    background-color 0.25s ease-in-out;
 }
 .friend-requests button.toggleBtn {
   @apply p-2 px-4 w-full rounded-lg h-12 flex-shrink-0 text-left text-lg flex justify-between items-center hover:bg-white hover:bg-opacity-5 active:bg-white active:bg-opacity-10;
-  transition: border-radius 0.25s ease-in-out, background-color 0.15s ease-in-out;
+  transition:
+    border-radius 0.25s ease-in-out,
+    background-color 0.15s ease-in-out;
 }
 .friend-requests button.toggleBtn svg {
   @apply w-5 h-5;
   transition: transform 0.25s ease-in-out;
 }
-.friend-requests[expand=true] {
+.friend-requests[expand='true'] {
   @apply h-64;
 }
-.friend-requests[expand=true] button.toggleBtn {
+.friend-requests[expand='true'] button.toggleBtn {
   @apply rounded-b-none;
 }
-.friend-requests[expand=true] button.toggleBtn svg {
+.friend-requests[expand='true'] button.toggleBtn svg {
   transform: rotate3d(1, 0, 0, 180deg);
 }
 input[type='text'].username-input {
