@@ -9,9 +9,7 @@ import FriendRequests from '@/components/FriendRequests.vue'
 const api = getApiUrl()
 
 const tab = ref(0)
-const friendRequests = ref([])
 // const currentView = ref('friends')
-const reqRefreshing = ref(false)
 
 const logout = async () => {
   const response = await fetch(`${api}/auth/logout`, {
@@ -47,16 +45,6 @@ const getFriendList = async () => {
   console.log(data)
 }
 
-const getFriendRequests = async () => {
-  reqRefreshing.value = true
-  const response = await fetch(`${api}/friends/requests`, {
-    credentials: 'include',
-  })
-  const data = await response.json()
-  console.log(data)
-  reqRefreshing.value = false
-}
-
 const deleteAccount = async () => {
   await fetch(`${api}/auth/delete`, {
     method: 'POST',
@@ -68,7 +56,6 @@ const deleteAccount = async () => {
 onMounted(() => {
   checkOnboarding()
   getFriendList()
-  getFriendRequests()
 })
 </script>
 
@@ -87,7 +74,7 @@ onMounted(() => {
         <div
           :class="`tabbed-view flex justify-between w-[40rem] gap-4 h-full transition-transform ${tab == 0 ? '' : '-translate-x-[22rem]'}`">
           <ChatList />
-          <FriendRequests :requests="friendRequests" :refreshing="reqRefreshing" @refresh="getFriendRequests" />
+          <FriendRequests />
         </div>
         <div class="buttons">
           <button @click="logout">Logout</button>

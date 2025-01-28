@@ -1,36 +1,115 @@
 <script setup lang="ts">
-import { getApiUrl } from '@/utils/apiUrl';
+import { getApiUrl } from '@/utils/apiUrl'
+import { onMounted, ref } from 'vue'
 
-const props = defineProps({
-  requests: Array,
-  refreshing: Boolean,
-})
-const emit = defineEmits(['refresh'])
+const frequests = ref([<friendRequest>{}])
+const refreshing = ref(false)
 const api = getApiUrl()
+const receiver = ref('')
+const message = ref('')
+const error = ref(false)
+const inputShake = ref(false)
 
+interface friendRequest {
+  id: string
+  username: string
+  name: string
+  avatar: string
+}
+
+const getFriendRequests = async () => {
+  refreshing.value = true
+  const response = await fetch(`${api}/friends/requests`, {
+    credentials: 'include',
+  })
+  const data = await response.json()
+  frequests.value = data
+  refreshing.value = false
+}
+
+const sendRequest = async () => {
+  error.value = false
+  message.value = ''
+  if (receiver.value == '') return
+  const response = await fetch(`${api}/friends/send/${receiver.value}`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+  const data = await response.json()
+
+  if (data.error) {
+    error.value = true
+    inputShake.value = true
+    message.value = data.error
+    setTimeout(() => (inputShake.value = false), 350)
+  } else if (data.message) {
+    message.value = data.message
+  }
+
+  setTimeout(() => {
+    message.value = ''
+    error.value = false
+  }, 5000)
+}
+
+const handleRequest = async (id: string, operation: 'accept' | 'reject') => {
+  const response = await fetch(`${api}/friends/${operation}/${id}`, {
+    credentials: 'include',
+    method: 'POST',
+  })
+  const data = await response.json()
+  if (data.error) {
+    console.log(data.error)
+  }
+  getFriendRequests()
+}
+
+onMounted(() => {
+  getFriendRequests()
+})
 </script>
 
 <template>
   <div class="friend-requests">
     <div class="relative mt-4">
       <label class="">
-        <input type="text" placeholder="Enter username" class="username-input" />
+        <input type="text" placeholder="Enter username"
+          :class="`username-input ${error ? 'err' : ''} ${inputShake ? 'shake' : ''}`" v-model="receiver" />
         <div>Add a friend</div>
       </label>
+      <div class="result" :class="`transition-[height] ${message ? 'h-4' : 'h-0'} ${error ? 'text-red-500' : ''}`">
+        {{ message }}
+      </div>
       <button
-        class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-0 top-0">
+        class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-0 top-0"
+        @click="sendRequest">
         <font-awesome-icon icon="fa-paper-plane" />
       </button>
     </div>
     <div class="flex mt-4 justify-between items-center">
       <div class="text-left text-xl font-['ClashDisplay']">Friend Requests</div>
-      <button class="refresh-button" @click="emit('refresh')">
+      <button class="refresh-button" @click="getFriendRequests">
         <font-awesome-icon icon="fa-rotate-right"
-          :class="`transition-all ${props.refreshing ? 'animate-spin text-accent-500 dark:text-accent-300' : ''}`" />
+          :class="`transition-all ${refreshing ? 'animate-spin text-accent-500 dark:text-accent-300' : ''}`" />
       </button>
     </div>
-    <div class="requests-box flex flex-1">
-      <div class="text-center" v-if="props.requests?.length == 0">
+    <div class="requests-box flex flex-1 mt-1">
+      <div class="friend-request" v-for="request in frequests" :key="request.id">
+        <img :src="request.avatar" class="w-10 h-10 rounded-full" />
+        <div class="flex flex-col">
+          <div class="text-lg font-['ClashDisplay'] leading-tight">{{ request.name }}</div>
+          <div class="text-sm opacity-80">@{{ request.username }}</div>
+        </div>
+        <div class="actions absolute right-0 top-0 h-full flex flex-col p-1.5 gap-1">
+          <button title="Accept" class="w-10 h-full rounded-md text-green-500 hover:bg-green-500 hover:text-white hover:bg-opacity active:bg-opacity-80 transition-colors" @click="handleRequest(request.id, 'accept')">
+            <font-awesome-icon icon="fa-check" />
+          </button>
+          <button title="Reject" class="w-10 h-full rounded-md text-red-500 hover:bg-red-500 hover:text-white hover:bg-opacity active:bg-opacity-80 transition-colors" @click="handleRequest(request.id, 'reject')">
+            <font-awesome-icon icon="fa-xmark" />
+          </button>
+        </div>
+      </div>
+      <div class="text-center" v-if="frequests?.length == 0">
         No pending requests.
       </div>
     </div>
@@ -42,6 +121,10 @@ const api = getApiUrl()
   @apply h-full flex flex-col w-72;
   background-size: 100% 16rem;
   transition: height 0.25s ease-in-out;
+}
+
+.friend-request {
+  @apply flex relative overflow-hidden items-center gap-4 px-4 py-2 w-full h-16 bg-stone-100 dark:bg-stone-900 rounded-lg;
 }
 
 label input.username-input+div {

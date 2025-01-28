@@ -261,7 +261,7 @@ label input:focus + div {
 }
 
 label input:not(:placeholder-shown) + div {
-  transform: translate(-0.8rem, -2rem) scale(80%);
+  transform: translate(-0.8rem, -120%) scale(80%);
 }
 
 .showpassword {
