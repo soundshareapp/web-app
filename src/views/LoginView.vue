@@ -257,7 +257,7 @@ label div {
 
 label input:focus + div {
   @apply text-accent-600 dark:text-accent-500;
-  transform: translate(-0.8rem, -2rem) scale(80%);
+  transform: translate(-0.8rem, -120%) scale(80%);
 }
 
 label input:not(:placeholder-shown) + div {

@@ -54,7 +54,7 @@ const friends = ref([
 </script>
 
 <template>
-  <div id="friendlist" class="flex flex-col gap-2 flex-1">
+  <div id="chatlist" class="mt-4 flex flex-col gap-2 w-72">
     <div v-for="friend in friends" :key="friend.id" class="flex flex-col gap-4">
       <div
         :class="`friendbutton ${selected == friend.id ? ' bg-stone-200 dark:bg-stone-800 bg-opacity-30 dark:bg-opacity-30' : ''}`"
