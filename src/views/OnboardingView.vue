@@ -46,6 +46,7 @@ const failureReason = ref('')
 const spotifyUserData = ref<SpotifyUserData | null>(null)
 
 const unError = ref(false)
+const unTaken = ref(false)
 const inputShake = ref([false, false])
 
 const completeOnboarding = async () => {
@@ -85,8 +86,13 @@ const nextStep = async () => {
       }),
     })
     const data = await response.json()
-    if (data.updated.includes('username') && data.updated.includes('name')) {
+    if (data.updated?.includes('username') && data.updated?.includes('name')) {
       currentStep.value = 2
+    } else if (data['error'] == 'username_taken') {
+      unTaken.value = true
+      unError.value = true
+      inputShake.value[0] = true
+      setTimeout(() => (inputShake.value[0] = false), 350)
     }
   } else {
     inputShake.value[0] = !usernameRegex.test(username.value)
@@ -97,6 +103,11 @@ const nextStep = async () => {
 }
 
 const testUsername = async () => {
+  if (unTaken.value) {
+    unTaken.value = false
+    unError.value = false
+  }
+
   const oldValue = unError.value
   unError.value = !usernameRegex.test(username.value)
   if (oldValue != unError.value) {
@@ -163,17 +174,31 @@ onMounted(() => {
         <div class="onboarding-step">
           <h1 class="text-2xl font-medium">Let's start with the basics</h1>
           <label>
-            <input v-model="username" type="text" placeholder="curiouspineapple" @input="testUsername"
-              :class="(unError ? 'err ' : '') + (inputShake[0] ? 'shake' : '')" />
+            <input
+              v-model="username"
+              type="text"
+              placeholder="curiouspineapple"
+              @input="testUsername"
+              :class="(unError ? 'err ' : '') + (inputShake[0] ? 'shake' : '')"
+            />
             <div>Pick a username</div>
-            <p class="text-sm">
+            <p class="text-sm" v-if="!unTaken">
               5-20 characters, can consist of a-z, 0-9, period, hyphen and
               underscore, must begin with alphabet.
             </p>
+            <p class="text-sm text-red-500" v-if="unTaken">
+              That username is already taken. Consider adding numbers, or a
+              unique variation to make it yours.
+            </p>
           </label>
           <label>
-            <input v-model="name" type="text" placeholder="John Doe" :class="inputShake[1] ? 'shake' : ''"
-              @keyup.enter="nextStep()" />
+            <input
+              v-model="name"
+              type="text"
+              placeholder="John Doe"
+              :class="inputShake[1] ? 'shake' : ''"
+              @keyup.enter="nextStep()"
+            />
             <div>Choose your display name</div>
             <p class="text-sm">Can be your real name or nickname.</p>
           </label>
@@ -183,26 +208,41 @@ onMounted(() => {
         </div>
         <div class="onboarding-step">
           <h1 class="text-2xl font-medium">Link your streaming service</h1>
-          <button class="linkbutton transition-colors p-3 my-2 text-white text-base rounded-xl relative"
-            @click="spotifyLogin">
-            <img class="w-7 h-7 left-5 top-2.5 absolute" src="../assets/spotify.svg" />
+          <button
+            class="linkbutton transition-colors p-3 my-2 text-white text-base rounded-xl relative"
+            @click="spotifyLogin"
+          >
+            <img
+              class="w-7 h-7 left-5 top-2.5 absolute"
+              src="../assets/spotify.svg"
+            />
             <div class="translate-x-[3%] font-bold">CONNECT WITH SPOTIFY</div>
           </button>
           <p v-if="spotifyConnection == 'success'" class="font-medium">
             Your Spotify profile
           </p>
-          <div v-if="spotifyConnection === 'success'" class="spotifyUserCard" :style="{
-            'background-image': `url(${spotifyUserData?.images?.[0]?.url}`,
-          }">
-            <img :src="spotifyUserData?.images?.[0]?.url" class="w-16 h-16 rounded-md" />
+          <div
+            v-if="spotifyConnection === 'success'"
+            class="spotifyUserCard"
+            :style="{
+              'background-image': `url(${spotifyUserData?.images?.[0]?.url}`,
+            }"
+          >
+            <img
+              :src="spotifyUserData?.images?.[0]?.url"
+              class="w-16 h-16 rounded-md"
+            />
             <div class="flex flex-col">
               <div class="text-xl font-medium">
                 {{ spotifyUserData?.display_name }}
                 <p class="inline text-lg">
                   {{ countryCodeToEmoji(spotifyUserData?.country || '') }}
                 </p>
-                <font-awesome-icon icon="dollar-sign" title="Premium"
-                  class="bg-gradient-to-tr from-[#1ed760d0] to-[#1ed780d0] ml-1 p-1 w-3 h-3 rounded-full" />
+                <font-awesome-icon
+                  icon="dollar-sign"
+                  title="Premium"
+                  class="bg-gradient-to-tr from-[#1ed760d0] to-[#1ed780d0] ml-1 p-1 w-3 h-3 rounded-full"
+                />
               </div>
               <div class="opacity-80 text-sm">
                 Followers: {{ spotifyUserData?.followers.total }}
@@ -217,7 +257,11 @@ onMounted(() => {
               </div>
             </div>
             <div class="cardBlur"></div>
-            <a class="userlink" :href="spotifyUserData?.external_urls.spotify" target="_blank">
+            <a
+              class="userlink"
+              :href="spotifyUserData?.external_urls.spotify"
+              target="_blank"
+            >
               <font-awesome-icon icon="arrow-up-right-from-square" />
             </a>
           </div>
@@ -241,7 +285,8 @@ onMounted(() => {
     </div>
     <button
       class="bg-stone-900 dark:bg-stone-100 bg-opacity-10 dark:bg-opacity-10 py-2 px-4 my-4 mx-auto rounded-md absolute bottom-0"
-      @click="logout">
+      @click="logout"
+    >
       Logout (Complete Later)
     </button>
     <PageGlow />
@@ -275,7 +320,7 @@ input.shake {
   animation: inputShake ease-out 0.35s;
 }
 
-label input.err+div {
+label input.err + div {
   @apply text-red-600 dark:text-red-500;
 }
 
