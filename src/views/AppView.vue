@@ -73,11 +73,14 @@ onMounted(() => {
             <div v-if="friendRequests.length == 0">No pending requests.</div>
           </div>
           <div class="bottom p-4 relative">
-            <input
-              type="text"
-              placeholder="Enter username"
-              class="username-input"
-            />
+            <label>
+              <input
+                type="text"
+                placeholder="Enter username"
+                class="username-input"
+              />
+              <div>Add a friend</div>
+            </label>
             <button
               class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-4 top-4"
             >
@@ -109,7 +112,7 @@ onMounted(() => {
   @apply border-r-2 border-white border-opacity-5 flex flex-col;
 }
 .friend-requests {
-  @apply overflow-hidden h-12 rounded-lg bg-accent-200 bg-opacity-10 box-content flex flex-col;
+  @apply overflow-hidden h-12 rounded-lg bg-gradient-to-br from-[#ffffff0f] to-[#5F84F8a0] box-content flex flex-col;
   transition:
     height 0.25s ease-in-out,
     background-color 0.25s ease-in-out;
@@ -133,10 +136,10 @@ onMounted(() => {
 .friend-requests[expand='true'] button.toggleBtn svg {
   transform: rotate3d(1, 0, 0, 180deg);
 }
+label input.username-input + div {
+  @apply text-base top-0;
+}
 input[type='text'].username-input {
   @apply bg-opacity-50 dark:bg-opacity-50 text-base py-1.5;
-}
-input.username-input::placeholder {
-  all: unset;
 }
 </style>
