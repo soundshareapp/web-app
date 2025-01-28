@@ -95,12 +95,12 @@ onMounted(() => {
     </div>
     <div class="requests-box flex flex-1 mt-1">
       <div class="friend-request" v-for="request in frequests" :key="request.id">
-        <img :src="request.avatar" class="w-10 h-10 rounded-full" />
+        <img :src="request.avatar" class="w-12 h-12 rounded-full" />
         <div class="flex flex-col">
-          <div class="text-lg font-['ClashDisplay'] leading-tight">{{ request.name }}</div>
+          <div class="text-lg font-medium font-['ClashDisplay'] leading-tight">{{ request.name }}</div>
           <div class="text-sm opacity-80">@{{ request.username }}</div>
         </div>
-        <div class="actions absolute right-0 top-0 h-full flex flex-col p-1.5 gap-1">
+        <div class="actions absolute right-0 top-0 h-full flex flex-col p-1.5">
           <button title="Accept" class="w-10 h-full rounded-md text-green-500 hover:bg-green-500 hover:text-white hover:bg-opacity active:bg-opacity-80 transition-colors" @click="handleRequest(request.id, 'accept')">
             <font-awesome-icon icon="fa-check" />
           </button>
@@ -124,7 +124,7 @@ onMounted(() => {
 }
 
 .friend-request {
-  @apply flex relative overflow-hidden items-center gap-4 px-4 py-2 w-full h-16 bg-stone-100 dark:bg-stone-900 rounded-lg;
+  @apply flex relative overflow-hidden items-center gap-4 p-2 w-full h-16 bg-stone-100 dark:bg-stone-900 rounded-lg;
 }
 
 label input.username-input+div {

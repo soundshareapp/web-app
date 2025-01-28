@@ -5,6 +5,7 @@ import DynamicLogo from '@/components/DynamicLogo.vue'
 import PageGlow from '@/components/PageGlow.vue'
 import { countryCodeToEmoji } from '@/utils/countryCodeEmoji'
 import { getApiUrl } from '@/utils/apiUrl'
+import type { SpotifyUserData } from '@/types/spotifyUserData'
 
 const router = useRouter()
 const api = getApiUrl()
@@ -14,33 +15,6 @@ const username = ref('')
 
 const usernameRegex = /^[a-z][a-z0-9._-]{4,19}$/
 const emailCensorRegex = /(^..|@[^@][^@]+$)|./g
-
-interface SpotifyUserData {
-  country: string
-  display_name: string
-  email: string
-  explicit_content: {
-    filter_enabled: boolean
-    filter_locked: boolean
-  }
-  external_urls: {
-    spotify: string
-  }
-  followers: {
-    href: string | null
-    total: number
-  }
-  href: string
-  id: string
-  images: {
-    height: number
-    url: string
-    width: number
-  }[]
-  product: string
-  type: string
-  uri: string
-}
 
 const spotifyConnection = ref('')
 const failureReason = ref('')
@@ -215,7 +189,7 @@ onMounted(() => {
           >
             <img
               class="w-7 h-7 left-5 top-2.5 absolute"
-              src="../assets/spotify.svg"
+              src="../assets/spotify-white.svg"
             />
             <div class="translate-x-[3%] font-bold">CONNECT WITH SPOTIFY</div>
           </button>
