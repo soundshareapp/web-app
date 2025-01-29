@@ -5,7 +5,7 @@ import DynamicLogo from '@/components/DynamicLogo.vue'
 import PageGlow from '@/components/PageGlow.vue'
 import { countryCodeToEmoji } from '@/utils/countryCodeEmoji'
 import { getApiUrl } from '@/utils/apiUrl'
-import type { SpotifyUserData } from '@/types/spotifyUserData'
+import type { SpotifyUserData } from '@/types/spotify'
 
 const router = useRouter()
 const api = getApiUrl()

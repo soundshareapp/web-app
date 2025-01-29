@@ -8,7 +8,7 @@ import { getApiUrl } from '@/utils/apiUrl'
 import FriendRequests from '@/components/FriendRequests.vue'
 import DialogModal from '@/components/DialogModal.vue'
 import type { DialogModalProps } from '@/types/dialogModal'
-import type { SpotifyUserData } from '@/types/spotifyUserData'
+import type { SpotifyUserData } from '@/types/spotify'
 
 const selectedChat = ref('')
 const api = getApiUrl()
@@ -26,9 +26,10 @@ const profile = ref({
 })
 const spotifyUserData = ref<SpotifyUserData | null>(null)
 const tokenExpiry = ref<Date | null>(null)
-
 const tab = ref(0)
-// const currentView = ref('friends')
+
+const updateChats = ref(false)
+// Variable to update chat list. Value does not affect anything, but is used to trigger a re-render of the chat list.
 
 const logout = async () => {
   const response = await fetch(`${api}/auth/logout`, {
@@ -175,8 +176,8 @@ onMounted(() => {
           <div :class="`highlight ${tab == 0 ? '' : 'translate-x-full'}`"></div>
         </div>
         <div :class="`tabbed-view ${tab == 0 ? '' : 'requests'}`">
-          <ChatList v-model="selectedChat" />
-          <FriendRequests />
+          <ChatList v-model="selectedChat" :update="updateChats" />
+          <FriendRequests @update="updateChats = !updateChats" />
         </div>
         <div class="profile hidden md:flex flex-col gap-3">
           <div

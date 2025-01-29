@@ -3,6 +3,8 @@ import { getApiUrl } from '@/utils/apiUrl'
 import { onMounted, ref } from 'vue'
 import RefreshButton from '@/components/RefreshButton.vue'
 
+const emit = defineEmits(['update'])
+
 const frequests = ref([<friendRequest>{}])
 const refreshing = ref(false)
 const api = getApiUrl()
@@ -19,6 +21,8 @@ interface friendRequest {
 }
 
 const getFriendRequests = async () => {
+  emit('update')
+
   refreshing.value = true
   const response = await fetch(`${api}/friends/requests`, {
     credentials: 'include',
@@ -63,6 +67,7 @@ const handleRequest = async (id: string, operation: 'accept' | 'reject') => {
     console.log(data.error)
   }
   getFriendRequests()
+  emit('update')
 }
 
 onMounted(() => {

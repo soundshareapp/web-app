@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { getApiUrl } from '@/utils/apiUrl'
 import { getTimeSince } from '@/utils/dynamicTime'
 import type { ChatData } from '@/types/chats'
@@ -9,6 +9,10 @@ const selected = defineModel()
 const api = getApiUrl()
 const chatList = ref<ChatData[]>([])
 
+const props = defineProps({
+  update: Boolean
+})
+
 const getChatList = async () => {
   const response = await fetch(`${api}/chat/list`, {
     credentials: 'include',
@@ -16,6 +20,11 @@ const getChatList = async () => {
   const data = await response.json()
   chatList.value = data
 }
+
+watch(() => props.update, () => {
+  getChatList()
+  console.log('update');
+})
 
 onMounted(() => {
   getChatList()
@@ -25,18 +34,13 @@ onMounted(() => {
 <template>
   <div id="chatlist" class="pt-2 flex flex-col gap-2 w-full md:w-72">
     <h1 class="text-3xl mt-6 font-['ClashDisplay'] block md:hidden">Chats</h1>
-    <div
-      v-for="chat in chatList"
-      :key="chat.userdata.id"
-      class="flex flex-col gap-4"
-    >
+    <div v-for="chat in chatList" :key="chat.userdata.id" class="flex flex-col gap-4">
       <div
         :class="`friendbutton ${selected == chat.userdata.id ? ' bg-stone-200 dark:bg-stone-800 bg-opacity-30 dark:bg-opacity-30' : ''}`"
-        @click="selected = chat.userdata.id"
-      >
+        @click="selected = chat.userdata.id">
         <img :src="chat.userdata.avatar" class="w-12 h-12 rounded-full" />
         <div class="flex flex-col w-full">
-          <div class="text-lg font-bold">{{ chat.userdata.name }}</div>
+          <div class="text-lg font-['ClashDisplay']">{{ chat.userdata.name }}</div>
           <!-- div :class="`text-sm ${chat.userdata.unreadCount > 0 ? 'dark:text-white' : 'text-stone-500'}`">
             Sent you a song
           </div-->
