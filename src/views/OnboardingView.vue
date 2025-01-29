@@ -101,16 +101,10 @@ const spotifyLogin = async () => {
 }
 
 const getUserData = async () => {
-  await fetch(`${api}/userdata/username`, { credentials: 'include' }).then(
-    async data => {
-      username.value = await data.text()
-    },
-  )
-  await fetch(`${api}/userdata/name`, { credentials: 'include' }).then(
-    async data => {
-      name.value = await data.text()
-    },
-  )
+  const response = await fetch(`${api}/userdata/username,name`, { credentials: 'include' })
+  const data = await response.json()
+  if (data.username) username.value = data.username
+  if (data.name) name.value = data.name
 }
 
 const getSpotifyData = async () => {

@@ -23,6 +23,7 @@ const profile = ref({
   avatar: '',
 })
 const spotifyUserData = ref<SpotifyUserData | null>(null)
+const tokenExpiry = ref<Date | null>(null)
 
 const tab = ref(0)
 // const currentView = ref('friends')
@@ -108,20 +109,39 @@ const confirmDeleteAccount = () => {
 }
 
 const getProfile = async () => {
-  const response = await fetch(
-    `${api}/userdata/get_multiple/username,name,avatar`,
-    {
-      credentials: 'include',
-    },
-  )
+  const response = await fetch(`${api}/userdata/username,name,avatar`, {
+    credentials: 'include',
+  })
   const data = await response.json()
   profile.value.avatar = data.avatar
   profile.value.username = data.username
   profile.value.name = data.name
 }
 
+const refreshSpotifyToken = async () => {
+  const response = await fetch(`${api}/spotify/refresh-token`, {
+    credentials: 'include',
+  })
+  const data = await response.json()
+  console.log(data);
+
+  if (data.success) {
+    tokenExpiry.value = new Date(data.expires_at)
+  }
+}
+
 const getSpotifyData = async () => {
-  const response = await fetch(`${api}/spotify/user-info`, {
+  let response = await fetch(`${api}/userdata/token_expires_at`, {
+    credentials: 'include',
+  })
+  const data = await response.json()
+  if (data.token_expires_at) tokenExpiry.value = new Date(data.token_expires_at)
+
+  if (tokenExpiry.value && tokenExpiry.value < new Date()) {
+    await refreshSpotifyToken()
+  }
+
+  response = await fetch(`${api}/spotify/user-info`, {
     credentials: 'include',
   })
   spotifyUserData.value = await response.json()
