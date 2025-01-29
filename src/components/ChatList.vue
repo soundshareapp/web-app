@@ -1,83 +1,47 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
-const selected = ref('fb40dcf9-7469-444e-8f39-b5bfceaedfe9')
+import { onMounted, ref } from 'vue'
+import { getApiUrl } from '@/utils/apiUrl'
+import { getTimeSince } from '@/utils/dynamicTime'
+import type { ChatData } from '@/types/chats'
 
-const timeSince = (timeStamp: Date) => {
-  const now = new Date(),
-    secondsPast = (now.getTime() - timeStamp.getTime()) / 1000
-  if (secondsPast < 60) {
-    return Math.floor(secondsPast) + 's'
-  }
-  if (secondsPast < 3600) {
-    return Math.floor(secondsPast / 60) + 'm'
-  }
-  if (secondsPast <= 86400) {
-    return Math.floor(secondsPast / 3600) + 'h'
-  }
-  if (secondsPast > 86400) {
-    const day = timeStamp.getDate()
-    const month = timeStamp
-      .toDateString()
-      .match(/ [a-zA-Z]*/)?.[0]
-      .replace(' ', '')
-    const year =
-      timeStamp.getFullYear() == now.getFullYear()
-        ? ''
-        : ' ' + timeStamp.getFullYear()
-    return day + ' ' + month + year
-  }
+const selected = defineModel()
+
+const api = getApiUrl()
+const chatList = ref<ChatData[]>([])
+
+const getChatList = async () => {
+  const response = await fetch(`${api}/chat/list`, {
+    credentials: 'include',
+  })
+  const data = await response.json()
+  chatList.value = data
 }
 
-const friends = ref([
-  {
-    timestamp: new Date('2025-01-22T20:09:42.000+05:30'),
-    id: 'fb40dcf9-7469-444e-8f39-b5bfceaedfe9',
-    name: 'Bob the Blob',
-    avatar: 'https://picsum.photos/200',
-    unreadCount: 0,
-  },
-  {
-    timestamp: new Date('2025-01-18T20:10:42.000+05:30'),
-    id: 'e8aaf390-de16-4eea-80d5-6fec3286be34',
-    name: 'Alice the Cat',
-    avatar: 'https://picsum.photos/200',
-    unreadCount: 1,
-  },
-  {
-    timestamp: new Date('2025-01-19T22:11:42.000+05:30'),
-    id: '52be1281-1d0c-46ca-a254-2e2e3396dc9d',
-    name: 'John the Dog',
-    avatar: 'https://picsum.photos/200',
-    unreadCount: 0,
-  },
-])
+onMounted(() => {
+  getChatList()
+})
 </script>
 
 <template>
-  <div id="chatlist" class="mt-4 flex flex-col gap-2 w-72">
-    <div v-for="friend in friends" :key="friend.id" class="flex flex-col gap-4">
+  <div id="chatlist" class="pt-4 flex flex-col gap-2 w-full sm:w-72">
+    <h1 class="text-3xl mt-6 font-['ClashDisplay'] block sm:hidden">Chats</h1>
+    <div v-for="chat in chatList" :key="chat.userdata.id" class="flex flex-col gap-4">
       <div
-        :class="`friendbutton ${selected == friend.id ? ' bg-stone-200 dark:bg-stone-800 bg-opacity-30 dark:bg-opacity-30' : ''}`"
-        @click="selected = friend.id"
-      >
-        <img :src="friend.avatar" class="w-12 h-12 rounded-full" />
+        :class="`friendbutton ${selected == chat.userdata.id ? ' bg-stone-200 dark:bg-stone-800 bg-opacity-30 dark:bg-opacity-30' : ''}`"
+        @click="selected = chat.userdata.id">
+        <img :src="chat.userdata.avatar" class="w-12 h-12 rounded-full" />
         <div class="flex flex-col w-full">
-          <div class="text-lg font-bold">{{ friend.name }}</div>
-          <div
-            :class="`text-sm ${friend.unreadCount > 0 ? 'dark:text-white' : 'text-stone-500'}`"
-          >
+          <div class="text-lg font-bold">{{ chat.userdata.name }}</div>
+          <!-- div :class="`text-sm ${chat.userdata.unreadCount > 0 ? 'dark:text-white' : 'text-stone-500'}`">
             Sent you a song
-          </div>
+          </div-->
         </div>
         <div class="flex flex-col w-20 items-end text-end justify-evenly">
-          <div
-            class="text-sm text-white bg-accent-500 rounded-xl w-5 h-5 text-center"
-            v-if="friend.unreadCount > 0"
-          >
+          <!--div class="text-sm text-white bg-accent-500 rounded-xl w-5 h-5 text-center" v-if="friend.unreadCount > 0">
             {{ friend.unreadCount }}
-          </div>
+          </div-->
           <div class="text-xs text-stone-500">
-            {{ timeSince(friend.timestamp) }}
+            {{ chat.timestamp ? getTimeSince(chat.timestamp) :'' }}
           </div>
         </div>
       </div>

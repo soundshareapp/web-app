@@ -16,7 +16,7 @@
 }
 
 body {
-  @apply bg-stone-100 dark:bg-black min-h-svh text-black dark:text-white;
+  @apply bg-stone-100 dark:bg-black min-h-dvh text-black dark:text-white;
   transition:
     color 0.5s,
     background-color 0.5s;

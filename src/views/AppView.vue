@@ -2,6 +2,7 @@
 import router from '@/router'
 import PageGlow from '@/components/PageGlow.vue'
 import ChatList from '@/components/ChatList.vue'
+import ChatPane from '@/components/ChatPane.vue'
 import { onMounted, ref } from 'vue'
 import { getApiUrl } from '@/utils/apiUrl'
 import FriendRequests from '@/components/FriendRequests.vue'
@@ -9,6 +10,7 @@ import DialogModal from '@/components/DialogModal.vue'
 import type { DialogModalProps } from '@/types/dialogModal'
 import type { SpotifyUserData } from '@/types/spotifyUserData'
 
+const selectedChat = ref('')
 const api = getApiUrl()
 const showModal = ref(false)
 const modalProperties = ref<DialogModalProps>({
@@ -54,13 +56,12 @@ const checkOnboarding = async () => {
   }
 }
 
-const getFriendList = async () => {
+/*const getFriendList = async () => {
   const response = await fetch(`${api}/friends/get`, {
     credentials: 'include',
   })
   const data = await response.json()
-  console.log(data)
-}
+}*/
 
 const deleteAccount = async () => {
   await fetch(`${api}/auth/delete`, {
@@ -123,7 +124,7 @@ const refreshSpotifyToken = async () => {
     credentials: 'include',
   })
   const data = await response.json()
-  console.log(data);
+  console.log(data)
 
   if (data.success) {
     tokenExpiry.value = new Date(data.expires_at)
@@ -149,21 +150,21 @@ const getSpotifyData = async () => {
 
 onMounted(() => {
   checkOnboarding()
-  getFriendList()
+  // getFriendList()
   getSpotifyData()
   getProfile()
 })
 </script>
 
 <template>
-  <div class="app-container sm:p-8 h-svh">
+  <div class="app-container sm:p-8 h-dvh">
     <div
-      class="pane-container flex w-full gap-4 h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 sm:rounded-2xl overflow-hidden"
+      class="pane-container flex w-full h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 sm:rounded-2xl overflow-hidden"
     >
       <div class="pane friends">
-        <h1 class="text-3xl font-['ClashDisplay']">Friends</h1>
+        <h1 class="text-3xl font-['ClashDisplay'] hidden sm:block">Friends</h1>
         <div
-          class="tabs relative flex items-center justify-evenly p-1 rounded-lg bg-stone-800 dark:bg-stone-100 bg-opacity-5 dark:bg-opacity-5 select-none overflow-hidden"
+          class="tabs"
         >
           <div class="flex-1 text-center cursor-pointer" @click="tab = 0">
             Chats
@@ -173,15 +174,13 @@ onMounted(() => {
           </div>
           <div :class="`highlight ${tab == 0 ? '' : 'translate-x-full'}`"></div>
         </div>
-        <div
-          :class="`tabbed-view flex justify-between w-[40rem] gap-4 h-full transition-transform ${tab == 0 ? '' : '-translate-x-[22rem]'}`"
-        >
-          <ChatList />
+        <div :class="`tabbed-view ${tab == 0 ? '' : 'requests'}`">
+          <ChatList v-model="selectedChat" />
           <FriendRequests />
         </div>
-        <div class="profile flex flex-col gap-3">
+        <div class="profile hidden sm:flex flex-col gap-3">
           <div
-            class="flex gap-2.5 border-t-2 pt-4 border-stone-500 border-opacity-30"
+            class="flex gap-2.5 border-t-2 pt-4 border-accent-500 border-opacity-25"
           >
             <img
               class="w-16 h-16 rounded-xl"
@@ -210,7 +209,6 @@ onMounted(() => {
               </a>
             </div>
           </div>
-
           <div class="buttons flex gap-1">
             <button
               title="Logout"
@@ -232,11 +230,19 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="main w-full sm:block">
-        <h1 class="text-2xl font-bold">Bob the Blob</h1>
+      <div class="main w-full hidden sm:block">
+        <ChatPane :userId="selectedChat" />
       </div>
-      <div class="pane activity min-w-60">
+      <div class="pane activity hidden sm:block min-w-60 border-l-2 border-stone-500 border-opacity-10">
         <h1 class="text-3xl font-['ClashDisplay'] mb-4">Activity</h1>
+        <div
+          class="flex flex-col gap-4 h-full pb-20 items-center justify-center text-xl opacity-50 select-none"
+        >
+          <div class="text-3xl">
+            <font-awesome-icon icon="fa-gears" />
+          </div>
+          Coming Soon
+        </div>
       </div>
     </div>
     <DialogModal :properties="modalProperties" :visible="showModal" />
@@ -245,12 +251,26 @@ onMounted(() => {
 </template>
 
 <style>
+.tabbed-view {
+  width: calc(200vw - 4rem);
+  @apply sm:w-[44rem] gap-16 flex h-full transition-transform;
+}
+
+.tabbed-view.requests {
+  transform: translateX(-100vw);
+  @apply sm:-translate-x-1/2;
+}
+
 .pane {
-  @apply bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 p-6 max-h-full shadow-md backdrop-blur-2xl;
+  @apply bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 p-8 sm:p-6 max-h-full shadow-sm backdrop-blur-2xl;
 }
 
 .pane.friends {
-  @apply border-r-2 min-w-72 max-w-72 box-content border-white border-opacity-5 flex flex-col gap-2 overflow-hidden;
+  @apply border-r-2 sm:min-w-72 sm:max-w-72 box-content border-stone-500 border-opacity-10 flex flex-col gap-2 overflow-hidden;
+}
+
+.friends .tabs {
+  @apply order-2 sm:order-none flex relative items-center justify-evenly p-1 rounded-lg bg-stone-800 dark:bg-stone-100 bg-opacity-5 dark:bg-opacity-5 select-none overflow-hidden;
 }
 
 .tabs .highlight {

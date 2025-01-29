@@ -130,7 +130,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="onboarding-page h-svh flex flex-col items-center justify-center">
+  <div class="onboarding-page h-dvh flex flex-col items-center justify-center">
     <div class="appName text-3xl sm:text-5xl">Welcome to</div>
     <div class="oblogo flex items-center justify-center -translate-x-1">
       <DynamicLogo size="5rem" />

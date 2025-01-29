@@ -71,7 +71,7 @@ onMounted(() => {
 
 <template>
   <div class="friend-requests">
-    <div class="relative mt-4">
+    <div class="relative mt-4 order-3 shrink-0 sm:order-none">
       <label class="">
         <input type="text" placeholder="Enter username"
           :class="`username-input ${error ? 'err' : ''} ${inputShake ? 'shake' : ''}`" v-model="receiver" />
@@ -86,8 +86,8 @@ onMounted(() => {
         <font-awesome-icon icon="fa-paper-plane" />
       </button>
     </div>
-    <div class="flex mt-4 justify-between items-center">
-      <div class="text-left text-xl font-['ClashDisplay']">Friend Requests</div>
+    <div class="flex mt-10 sm:mt-4 justify-between items-center">
+      <div class="text-left text-3xl sm:text-xl font-['ClashDisplay']">Friend Requests</div>
       <button class="refresh-button" @click="getFriendRequests">
         <font-awesome-icon icon="fa-rotate-right"
           :class="`transition-all ${refreshing ? 'animate-spin text-accent-500 dark:text-accent-300' : ''}`" />
@@ -118,7 +118,7 @@ onMounted(() => {
 
 <style>
 .friend-requests {
-  @apply h-full flex flex-col w-72;
+  @apply h-full flex flex-col w-full sm:w-72;
   background-size: 100% 16rem;
   transition: height 0.25s ease-in-out;
 }
@@ -132,7 +132,7 @@ label input.username-input+div {
 }
 
 input[type='text'].username-input {
-  @apply bg-opacity-50 dark:bg-opacity-50 text-base py-1.5;
+  @apply bg-opacity-50 dark:bg-opacity-50 text-base h-10 py-1.5;
 }
 
 .refresh-button {
