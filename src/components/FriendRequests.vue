@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getApiUrl } from '@/utils/apiUrl'
 import { onMounted, ref } from 'vue'
+import RefreshButton from '@/components/RefreshButton.vue'
 
 const frequests = ref([<friendRequest>{}])
 const refreshing = ref(false)
@@ -71,7 +72,7 @@ onMounted(() => {
 
 <template>
   <div class="friend-requests">
-    <div class="relative mt-4 order-3 shrink-0 sm:order-none">
+    <div class="relative mt-4 order-3 shrink-0 md:order-none">
       <label class="">
         <input type="text" placeholder="Enter username"
           :class="`username-input ${error ? 'err' : ''} ${inputShake ? 'shake' : ''}`" v-model="receiver" />
@@ -86,12 +87,9 @@ onMounted(() => {
         <font-awesome-icon icon="fa-paper-plane" />
       </button>
     </div>
-    <div class="flex mt-10 sm:mt-4 justify-between items-center">
-      <div class="text-left text-3xl sm:text-xl font-['ClashDisplay']">Friend Requests</div>
-      <button class="refresh-button" @click="getFriendRequests">
-        <font-awesome-icon icon="fa-rotate-right"
-          :class="`transition-all ${refreshing ? 'animate-spin text-accent-500 dark:text-accent-300' : ''}`" />
-      </button>
+    <div class="flex mt-10 md:mt-4 justify-between items-center">
+      <div class="text-left text-3xl md:text-xl font-['ClashDisplay']">Friend Requests</div>
+      <RefreshButton :refreshing="refreshing" @click="getFriendRequests" />
     </div>
     <div class="requests-box flex flex-1 mt-1">
       <div class="friend-request" v-for="request in frequests" :key="request.id">
@@ -118,7 +116,7 @@ onMounted(() => {
 
 <style>
 .friend-requests {
-  @apply h-full flex flex-col w-full sm:w-72;
+  @apply h-full flex flex-col w-full md:w-72;
   background-size: 100% 16rem;
   transition: height 0.25s ease-in-out;
 }
@@ -135,7 +133,4 @@ input[type='text'].username-input {
   @apply bg-opacity-50 dark:bg-opacity-50 text-base h-10 py-1.5;
 }
 
-.refresh-button {
-  @apply transition-colors p-2 h-5 w-5 text-lg box-content flex rounded-full justify-center items-center hover:bg-stone-500 active:bg-stone-500 hover:bg-opacity-10 active:bg-opacity-15;
-}
 </style>

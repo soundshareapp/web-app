@@ -157,12 +157,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app-container sm:p-8 h-dvh">
+  <div class="app-container md:p-8 h-dvh">
     <div
-      class="pane-container flex w-full h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 sm:rounded-2xl overflow-hidden"
+      class="pane-container flex w-full h-full justify-between bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 md:rounded-2xl overflow-hidden"
     >
-      <div class="pane friends">
-        <h1 class="text-3xl font-['ClashDisplay'] hidden sm:block">Friends</h1>
+      <div :class="`pane friends ${selectedChat ? 'opacity-0 -translate-x-60' : ''} md:opacity-100 md:translate-x-0`">
+        <h1 class="text-3xl font-['ClashDisplay'] hidden md:block">Friends</h1>
         <div
           class="tabs"
         >
@@ -178,7 +178,7 @@ onMounted(() => {
           <ChatList v-model="selectedChat" />
           <FriendRequests />
         </div>
-        <div class="profile hidden sm:flex flex-col gap-3">
+        <div class="profile hidden md:flex flex-col gap-3">
           <div
             class="flex gap-2.5 border-t-2 pt-4 border-accent-500 border-opacity-25"
           >
@@ -230,10 +230,10 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="main w-full hidden sm:block">
-        <ChatPane :userId="selectedChat" />
+      <div :class="`main-pane ${selectedChat ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-60 opacity-0 scale-90'}`">
+        <ChatPane :userId="selectedChat" @close="selectedChat = ''" />
       </div>
-      <div class="pane activity hidden sm:block min-w-60 border-l-2 border-stone-500 border-opacity-10">
+      <div class="pane activity hidden lg:block min-w-60 border-l-2 border-stone-500 border-opacity-10">
         <h1 class="text-3xl font-['ClashDisplay'] mb-4">Activity</h1>
         <div
           class="flex flex-col gap-4 h-full pb-20 items-center justify-center text-xl opacity-50 select-none"
@@ -253,24 +253,30 @@ onMounted(() => {
 <style>
 .tabbed-view {
   width: calc(200vw - 4rem);
-  @apply sm:w-[44rem] gap-16 flex h-full transition-transform;
+  @apply md:w-[44rem] gap-16 flex h-full transition-transform;
 }
 
 .tabbed-view.requests {
   transform: translateX(-100vw);
-  @apply sm:-translate-x-1/2;
+  @apply md:-translate-x-1/2;
 }
 
 .pane {
-  @apply bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 p-8 sm:p-6 max-h-full shadow-sm backdrop-blur-2xl;
+  @apply bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 p-8 md:p-6 max-h-full shadow-sm backdrop-blur-2xl transition-opacity;
 }
 
 .pane.friends {
-  @apply border-r-2 sm:min-w-72 sm:max-w-72 box-content border-stone-500 border-opacity-10 flex flex-col gap-2 overflow-hidden;
+  @apply border-r-2 md:min-w-72 md:max-w-72 box-content border-stone-500 border-opacity-10 flex flex-col gap-2 overflow-hidden;
+  transition: transform 0.25s ease-out, opacity 0.2s ease-out;
+}
+
+.main-pane {
+  @apply w-full fixed top-0 left-0 z-10 md:translate-x-0 md:opacity-100 md:scale-100 md:z-auto md:static md:block;
+  transition: transform 0.25s ease-out, opacity 0.2s ease-out;
 }
 
 .friends .tabs {
-  @apply order-2 sm:order-none flex relative items-center justify-evenly p-1 rounded-lg bg-stone-800 dark:bg-stone-100 bg-opacity-5 dark:bg-opacity-5 select-none overflow-hidden;
+  @apply order-2 md:order-none flex relative items-center justify-evenly p-2 gap-4 rounded-lg bg-stone-800 dark:bg-stone-100 bg-opacity-5 dark:bg-opacity-5 select-none overflow-hidden;
 }
 
 .tabs .highlight {
