@@ -29,6 +29,8 @@ const songInfo = ref<SpotifyTrack | null>(null)
 const searchResults = ref<SpotifySearchResult | null>(null)
 const showSongPreview = ref(false)
 const showSearchResults = ref(false)
+const isSearching = ref(false)
+const selectedResult = ref('')
 const allowSend = ref(false)
 
 const api = getApiUrl()
@@ -65,6 +67,7 @@ const inputUpdate = () => {
   if (input.value.startsWith('/')) {
     inputMode.value = 'search'
     input.value = input.value.replace('/', '')
+    searchSong()
   }
 
   /* Link input mode operations */
@@ -80,9 +83,9 @@ const inputUpdate = () => {
   /* Search input mode operations */
   if (inputMode.value == 'search') {
     if (input.value != '') {
+      isSearching.value = true
       searchSong()
-    }
-    else {
+    } else {
       searchResults.value = null
       showSearchResults.value = false
       allowSend.value = false
@@ -106,7 +109,35 @@ const inputKey = (ev: KeyboardEvent) => {
     if (allowSend.value) {
       console.log('send message')
     } else {
-      inputUpdate()
+      if (inputMode.value == 'search') {
+        inputMode.value = 'link'
+        input.value = `https://open.spotify.com/track/${selectedResult.value}`
+        getSongInfo()
+      } else {
+        getSongInfo()
+      }
+    }
+  } else if (ev.key == 'ArrowUp' && inputMode.value == 'search') {
+    ev.preventDefault()
+    navigateSearchResults('up')
+  } else if (ev.key == 'ArrowDown' && inputMode.value == 'search') {
+    ev.preventDefault()
+    navigateSearchResults('down')
+  }
+}
+
+const navigateSearchResults = (direction: 'up' | 'down') => {
+  if (selectedResult.value == '') return
+  const track_ids = searchResults.value?.tracks.items.map(item => item.id)
+  if (track_ids) {
+    const currentIndex = track_ids.indexOf(selectedResult.value)
+    if (currentIndex == -1) return
+    if (direction == 'up') {
+      if (currentIndex == 0) return
+      selectedResult.value = track_ids[currentIndex - 1]
+    } else if (direction == 'down') {
+      if (currentIndex == track_ids.length - 1) return
+      selectedResult.value = track_ids[currentIndex + 1]
     }
   }
 }
@@ -145,9 +176,12 @@ const searchSong = throttleFn(
       return
     }
     allowSend.value = false
-    const response = await fetch(`${api}/spotify/search/${input.value}`, {
-      credentials: 'include',
-    })
+    const response = await fetch(
+      `${api}/spotify/search/${input.value.trim()}`,
+      {
+        credentials: 'include',
+      },
+    )
     const data = await response.json()
     if (data.error) {
       searchResults.value = null
@@ -156,6 +190,7 @@ const searchSong = throttleFn(
     } else {
       showSearchResults.value = true
       searchResults.value = data
+      isSearching.value = false
     }
   },
   500,
@@ -214,6 +249,9 @@ onMounted(() => {
     <Transition name="down-slide-fade">
       <SearchResults
         :search-results="searchResults"
+        :searching="isSearching"
+        :selected="selectedResult"
+        @update-selected="selectedResult = $event"
         v-if="showSearchResults && searchResults && inputMode == 'search'"
       />
     </Transition>
