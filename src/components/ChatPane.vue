@@ -87,6 +87,7 @@ const inputUpdate = () => {
       searchSong()
     } else {
       searchResults.value = null
+      selectedResult.value = ''
       showSearchResults.value = false
       allowSend.value = false
     }
@@ -100,16 +101,18 @@ const inputKey = (ev: KeyboardEvent) => {
     }
     showSongPreview.value = false
     allowSend.value = false
+    selectedResult.value = ''
   } else if (ev.key == 'Backspace') {
     if (input.value.length == 0 && inputMode.value == 'search') {
       inputMode.value = 'link'
     }
     allowSend.value = false
+    selectedResult.value = ''
   } else if (ev.key == 'Enter') {
     if (allowSend.value) {
       console.log('send message')
     } else {
-      if (inputMode.value == 'search') {
+      if (inputMode.value == 'search' && selectedResult.value != '') {
         inputMode.value = 'link'
         input.value = `https://open.spotify.com/track/${selectedResult.value}`
         getSongInfo()
