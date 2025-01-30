@@ -87,7 +87,7 @@ onMounted(() => {
         {{ message }}
       </div>
       <button
-        class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[colors,transform] rounded-r-md px-4 h-10 absolute right-0 top-0"
+        class="bg-accent-500 hover:bg-accent-400 active:bg-accent-400 active:scale-95 transition-[transform,background-color] rounded-r-md px-4 h-10 absolute right-0 top-0"
         @click="sendRequest">
         <font-awesome-icon icon="fa-paper-plane" />
       </button>
