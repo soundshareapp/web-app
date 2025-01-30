@@ -23,7 +23,7 @@ export interface SpotifyUserData {
 
 export interface SpotifyTrack {
   // From https://developer.spotify.com/documentation/web-api/reference/get-track
-  album: SpotifyAlbum[]
+  album: SpotifyAlbum
   artists: SpotifyArtist[]
   available_markets: string[]
   disc_number: number
@@ -85,4 +85,16 @@ export interface SpotifyImage {
   height: number
   url: string
   width: number
+}
+
+export interface SpotifySearchResult {
+  tracks: {
+    href: string
+    limit: number
+    next: string | null
+    offset: number
+    previous: string | null
+    total: number
+    items: SpotifyTrack[]
+  }
 }
