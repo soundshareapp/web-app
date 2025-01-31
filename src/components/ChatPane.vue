@@ -7,6 +7,7 @@ import SongPreview from '@/components/SongPreview.vue'
 import SearchResults from '@/components/SearchResults.vue'
 import type { SpotifySearchResult, SpotifyTrack } from '@/types/spotify'
 import { throttleFn } from '@/utils/throttleFunction'
+import { ChatMessage } from '@/types/chats'
 
 const props = defineProps({
   userId: {
@@ -38,6 +39,20 @@ const api = getApiUrl()
 const getMessages = async () => {
   if (!props.userId) return
   const response = await fetch(`${api}/chat/${props.userId}/messages`, {
+    credentials: 'include',
+  })
+  const data = await response.json()
+  console.log(data)
+}
+
+const sendMessage = async (message: ChatMessage) => {
+  if (!props.userId) return
+  const response = await fetch(`${api}/chat/${props.userId}/send/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
     credentials: 'include',
   })
   const data = await response.json()
@@ -110,14 +125,23 @@ const inputKey = (ev: KeyboardEvent) => {
     selectedResult.value = ''
   } else if (ev.key == 'Enter') {
     if (allowSend.value) {
-      console.log('send message')
+      if (songInfo.value == null) return
+      sendMessage({
+        song: {
+          title: songInfo.value?.name,
+          artist: songInfo.value?.artists[0].name,
+          album: songInfo.value?.album.name,
+          cover: songInfo.value?.album.images[0].url,
+          url: songInfo.value?.external_urls.spotify,
+        }
+      })
     } else {
       if (inputMode.value == 'search' && selectedResult.value != '') {
         inputMode.value = 'link'
         input.value = `https://open.spotify.com/track/${selectedResult.value}`
         getSongInfo()
       } else {
-        getSongInfo()
+        inputUpdate()
       }
     }
   } else if (ev.key == 'ArrowUp' && inputMode.value == 'search') {

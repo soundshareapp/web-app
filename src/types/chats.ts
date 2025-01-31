@@ -10,10 +10,17 @@ export interface ChatData {
 }
 
 export interface ChatMessage {
-  id: string
-  sender_id: string
-  timestamp: Date
-  songlink: string
-  note: string
-  rating: number
+  id?: string
+  sender_id?: string
+  timestamp?: number
+  note?: string
+  rating?: number
+  song: {
+    title: string
+    artist: string
+    album: string
+    cover: string
+    url: string
+  }
 }
+
