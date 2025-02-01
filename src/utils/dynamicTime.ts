@@ -1,6 +1,6 @@
-export function getTimeSince (timeStamp: Date) {
+export function getTimeSince (timeStamp: number) {
   const now = new Date(),
-    secondsPast = (now.getTime() - timeStamp.getTime()) / 1000
+    secondsPast = (now.getTime() - timeStamp) / 1000
   if (secondsPast < 60) {
     return Math.floor(secondsPast) + 's'
   }
@@ -11,15 +11,16 @@ export function getTimeSince (timeStamp: Date) {
     return Math.floor(secondsPast / 3600) + 'h'
   }
   if (secondsPast > 86400) {
-    const day = timeStamp.getDate()
-    const month = timeStamp
+    const timeStampDate = new Date(timeStamp)
+    const day = timeStampDate.getDate()
+    const month = timeStampDate
       .toDateString()
       .match(/ [a-zA-Z]*/)?.[0]
       .replace(' ', '')
     const year =
-      timeStamp.getFullYear() == now.getFullYear()
+    timeStampDate.getFullYear() == now.getFullYear()
         ? ''
-        : ' ' + timeStamp.getFullYear()
+        : ' ' + timeStampDate.getFullYear()
     return day + ' ' + month + year
   }
 }

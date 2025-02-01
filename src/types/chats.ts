@@ -6,10 +6,10 @@ export interface ChatData {
     username: string
     avatar: string
   }
-  timestamp: Date
+  timestamp: number
 }
 
-export interface ChatMessage {
+export interface MessageData {
   id?: string
   sender_id?: string
   timestamp?: number

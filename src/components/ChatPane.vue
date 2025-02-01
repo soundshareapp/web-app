@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { getApiUrl } from '@/utils/apiUrl'
-import { onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import RefreshButton from '@/components/RefreshButton.vue'
 import SongPreview from '@/components/SongPreview.vue'
 import SearchResults from '@/components/SearchResults.vue'
+import ChatMessage from '@/components/ChatMessage.vue'
 import type { SpotifySearchResult, SpotifyTrack } from '@/types/spotify'
-import { throttleFn } from '@/utils/throttleFunction'
-import { ChatMessage } from '@/types/chats'
+import type { MessageData } from '@/types/chats'
+import debounce from 'lodash.debounce'
 
 const props = defineProps({
   userId: {
@@ -15,6 +16,7 @@ const props = defineProps({
     required: true,
   },
 })
+
 const emit = defineEmits(['close'])
 
 const isRefreshing = ref(false)
@@ -33,6 +35,7 @@ const showSearchResults = ref(false)
 const isSearching = ref(false)
 const selectedResult = ref('')
 const allowSend = ref(false)
+const messages = ref<MessageData[]>([])
 
 const api = getApiUrl()
 
@@ -42,11 +45,22 @@ const getMessages = async () => {
     credentials: 'include',
   })
   const data = await response.json()
-  console.log(data)
+  messages.value = data
 }
 
-const sendMessage = async (message: ChatMessage) => {
-  if (!props.userId) return
+const sendMessage = async () => {
+  if (!props.userId || !allowSend.value || !songInfo.value) return
+
+  const message: MessageData = {
+    song: {
+      title: songInfo.value?.name,
+      artist: songInfo.value?.artists[0].name,
+      album: songInfo.value?.album.name,
+      cover: songInfo.value?.album.images[0].url,
+      url: songInfo.value?.external_urls.spotify,
+    },
+  }
+
   const response = await fetch(`${api}/chat/${props.userId}/send/`, {
     method: 'POST',
     headers: {
@@ -56,7 +70,30 @@ const sendMessage = async (message: ChatMessage) => {
     credentials: 'include',
   })
   const data = await response.json()
+  if (data.success) {
+    if (inputMode.value == 'search') {
+      inputMode.value = 'link'
+    }
+    showSongPreview.value = false
+    allowSend.value = false
+    selectedResult.value = ''
+    input.value = ''
+    getMessages()
+  }
   console.log(data)
+}
+
+const deleteMessage = async (id: string | undefined) => {
+  if (!props.userId) return
+  if (!id) return
+  const response = await fetch(`${api}/chat/${props.userId}/delete/${id}`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+  const data = await response.json()
+  if (data.success) {
+    getMessages()
+  }
 }
 
 const getUserData = async () => {
@@ -82,7 +119,6 @@ const inputUpdate = () => {
   if (input.value.startsWith('/')) {
     inputMode.value = 'search'
     input.value = input.value.replace('/', '')
-    searchSong()
   }
 
   /* Link input mode operations */
@@ -126,20 +162,10 @@ const inputKey = (ev: KeyboardEvent) => {
   } else if (ev.key == 'Enter') {
     if (allowSend.value) {
       if (songInfo.value == null) return
-      sendMessage({
-        song: {
-          title: songInfo.value?.name,
-          artist: songInfo.value?.artists[0].name,
-          album: songInfo.value?.album.name,
-          cover: songInfo.value?.album.images[0].url,
-          url: songInfo.value?.external_urls.spotify,
-        }
-      })
+      sendMessage()
     } else {
       if (inputMode.value == 'search' && selectedResult.value != '') {
-        inputMode.value = 'link'
-        input.value = `https://open.spotify.com/track/${selectedResult.value}`
-        getSongInfo()
+        selectSearchResult()
       } else {
         inputUpdate()
       }
@@ -169,7 +195,13 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
   }
 }
 
-const getSongInfo = throttleFn(
+const selectSearchResult = () => {
+  inputMode.value = 'link'
+  input.value = `https://open.spotify.com/track/${selectedResult.value}`
+  getSongInfo()
+}
+
+const getSongInfo = debounce(
   async () => {
     if (input.value == '') return
     allowSend.value = false
@@ -191,18 +223,18 @@ const getSongInfo = throttleFn(
     }
   },
   1000,
-  true,
+  { leading: true, trailing: true },
 )
 
-const searchSong = throttleFn(
+const searchSong = debounce(
   async () => {
+    allowSend.value = false
     if (input.value == '') {
       searchResults.value = null
       showSearchResults.value = false
-      allowSend.value = false
       return
     }
-    allowSend.value = false
+
     const response = await fetch(
       `${api}/spotify/search/${input.value.trim()}`,
       {
@@ -213,7 +245,6 @@ const searchSong = throttleFn(
     if (data.error) {
       searchResults.value = null
       showSearchResults.value = false
-      allowSend.value = false
     } else {
       showSearchResults.value = true
       searchResults.value = data
@@ -221,7 +252,7 @@ const searchSong = throttleFn(
     }
   },
   500,
-  true,
+  { leading: true, trailing: true },
 )
 
 watch(
@@ -237,11 +268,15 @@ onMounted(() => {
   showSongPreview.value = false
   getMessages()
   getUserData()
+  setInterval(() => {
+    getMessages()
+  }, 10000)
 })
+
 </script>
 
 <template>
-  <div id="chatpane" class="flex flex-col h-dvh md:h-full relative">
+  <div id="chatpane" :class="`flex flex-col h-dvh md:h-full relative ${userId == '' || !friendData ? 'pointer-events-none': ''}`">
     <Transition name="top-slide-fade">
       <div class="chat-header" v-if="userId != '' && friendData">
         <div class="left flex gap-3 items-center">
@@ -267,6 +302,21 @@ onMounted(() => {
         </div>
       </div>
     </Transition>
+    <Transition name="fade">
+      <div
+        v-if="userId != '' && friendData"
+        class="message-container h-full w-full max-w-5xl flex gap-4 overflow-y-auto flex-col-reverse items-end py-20 px-8 self-center"
+      >
+        <ChatMessage
+          v-for="message in messages"
+          :message="message"
+          :friend-id="userId"
+          :friend-data="friendData"
+          @delete="() => deleteMessage(message.id)"
+          v-bind:key="message.id"
+        />
+      </div>
+    </Transition>
     <Transition name="down-slide-fade">
       <SongPreview
         :song-info="songInfo"
@@ -279,6 +329,7 @@ onMounted(() => {
         :searching="isSearching"
         :selected="selectedResult"
         @update-selected="selectedResult = $event"
+        @confirm-selection="selectSearchResult"
         v-if="showSearchResults && searchResults && inputMode == 'search'"
       />
     </Transition>
@@ -292,7 +343,10 @@ onMounted(() => {
           @input="inputUpdate"
           @keydown="inputKey"
         />
-        <button :class="`send-button ${allowSend ? 'enabled' : ''}`">
+        <button
+          :class="`send-button ${allowSend ? 'enabled' : ''}`"
+          @click="sendMessage"
+        >
           <font-awesome-icon icon="fa-solid fa-paper-plane" />
         </button>
         <Transition name="fade">
@@ -328,7 +382,7 @@ onMounted(() => {
 
 <style>
 .chat-header {
-  @apply absolute w-full p-4 flex items-center justify-between bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 border-b-2 border-stone-500 border-opacity-10;
+  @apply absolute z-50 w-full p-4 flex items-center justify-between bg-white dark:bg-stone-900 bg-opacity-30 dark:bg-opacity-30 backdrop-blur-md border-b-2 border-stone-500 border-opacity-10;
 }
 
 .input-container {
@@ -337,7 +391,7 @@ onMounted(() => {
 
 .input-container .send-button {
   /* prettier-ignore */
-  @apply w-16 shrink-0 pr-2 text-lg rounded-l-lg rounded-r-3xl bg-stone-100 dark:bg-stone-950 bg-opacity-30 dark:bg-opacity-50 border-stone-600 dark:border-stone-100 border-2 border-opacity-10 dark:border-opacity-10 shadow-lg text-accent-500 transition-[transform,background-color];
+  @apply w-16 shrink-0 pr-2 text-lg rounded-l-lg rounded-r-3xl bg-stone-100 dark:bg-stone-950 bg-opacity-30 dark:bg-opacity-50 border-stone-600 dark:border-stone-100 border-2 border-opacity-10 dark:border-opacity-10 shadow-lg backdrop-blur text-accent-500 transition-[transform,background-color];
 }
 
 .input-container .send-button.enabled {

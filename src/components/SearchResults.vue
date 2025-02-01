@@ -11,7 +11,7 @@ const props = defineProps({
   selected: String,
 })
 
-const emit = defineEmits(['updateSelected'])
+const emit = defineEmits(['updateSelected', 'confirmSelection'])
 
 watch(
   () => props.searchResults,
@@ -19,6 +19,11 @@ watch(
     emit('updateSelected', props.searchResults.tracks.items[0].id)
   },
 )
+
+const resultClicked = (id: string) => {
+  if (props.selected == id) emit('confirmSelection')
+  else emit('updateSelected', id)
+}
 
 onMounted(() => {
   emit('updateSelected', props.searchResults.tracks.items[0].id)
@@ -46,7 +51,7 @@ onMounted(() => {
         class="result"
         v-for="track in props.searchResults.tracks.items"
         v-bind:key="track.id"
-        @click="emit('updateSelected', track.id)"
+        @click="() => resultClicked(track.id)"
         :class="{ selected: props.selected == track.id }"
       >
         <img :src="track.album.images[0].url" class="w-11 h-11 rounded-sm" />
@@ -83,7 +88,7 @@ onMounted(() => {
 
 <style>
 .search-results {
-  @apply overflow-hidden flex flex-col w-full p-4 gap-1 max-w-lg bg-white dark:bg-stone-900 bg-opacity-35 dark:bg-opacity-35 rounded-2xl shadow-lg backdrop-blur;
+  @apply overflow-hidden flex flex-col w-full p-4 gap-1 max-w-lg bg-white dark:bg-stone-900 bg-opacity-50 dark:bg-opacity-50 rounded-2xl shadow-lg backdrop-blur-md;
 }
 .search-results .result {
   @apply flex gap-3 p-2 items-center hover:bg-stone-100 dark:hover:bg-stone-900 rounded-md transition-colors;

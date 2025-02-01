@@ -67,6 +67,6 @@ const props = defineProps({
 <style>
 
 .song-preview {
-  @apply overflow-hidden flex w-full p-3 gap-3 max-w-lg bg-white dark:bg-stone-900 bg-opacity-65 dark:bg-opacity-65 rounded-2xl shadow-lg;
+  @apply overflow-hidden flex w-full p-3 gap-3 max-w-lg bg-white dark:bg-stone-900 bg-opacity-65 dark:bg-opacity-65 backdrop-blur-md rounded-2xl shadow-lg;
 }
 </style>
