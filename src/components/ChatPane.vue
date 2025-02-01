@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getApiUrl } from '@/utils/apiUrl'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import DynamicLogo from '@/components/DynamicLogo.vue'
 import RefreshButton from '@/components/RefreshButton.vue'
 import SongPreview from '@/components/SongPreview.vue'
@@ -86,10 +86,27 @@ const sendMessage = async () => {
 const deleteMessage = async (id: string | undefined) => {
   if (!props.userId) return
   if (!id) return
+  console.log('delete', id)
   const response = await fetch(`${api}/chat/${props.userId}/delete/${id}`, {
     method: 'POST',
     credentials: 'include',
   })
+  const data = await response.json()
+  if (data.success) {
+    getMessages()
+  }
+}
+
+const rateSong = async (id: string | undefined, rating: number) => {
+  if (!props.userId) return
+  if (!id) return
+  const response = await fetch(
+    `${api}/chat/${props.userId}/rate/${id}/${rating}`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    },
+  )
   const data = await response.json()
   if (data.success) {
     getMessages()
@@ -270,13 +287,15 @@ onMounted(() => {
   getUserData()
   setInterval(() => {
     getMessages()
-  }, 10000)
+  }, 30000)
 })
-
 </script>
 
 <template>
-  <div id="chatpane" :class="`flex flex-col h-dvh md:h-full relative ${userId == '' || !friendData ? 'pointer-events-none': ''}`">
+  <div
+    id="chatpane"
+    :class="`flex flex-col h-dvh md:h-full relative ${userId == '' || !friendData ? 'pointer-events-none' : ''}`"
+  >
     <Transition name="top-slide-fade">
       <div class="chat-header" v-if="userId != '' && friendData">
         <div class="left flex gap-3 items-center">
@@ -303,16 +322,14 @@ onMounted(() => {
       </div>
     </Transition>
     <Transition name="fade">
-      <div
-        v-if="userId != '' && friendData"
-        class="message-container h-full w-full max-w-5xl flex gap-4 overflow-y-auto flex-col-reverse items-end py-20 px-8 self-center"
-      >
+      <div v-if="userId != '' && friendData" class="message-container">
         <ChatMessage
           v-for="message in messages"
           :message="message"
           :friend-id="userId"
           :friend-data="friendData"
           @delete="() => deleteMessage(message.id)"
+          @rate="(rating) => rateSong(message.id, rating)"
           v-bind:key="message.id"
         />
       </div>
@@ -458,5 +475,14 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.message-container {
+  @apply h-full w-full max-w-5xl flex gap-4 overflow-y-auto flex-col-reverse items-end py-20 px-8 self-center;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.message-container::-webkit-scrollbar {
+  display: none;
 }
 </style>
